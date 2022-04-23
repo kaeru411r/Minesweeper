@@ -9,6 +9,8 @@ using System.Text;
 /// </summary>
 public class BoardManager : MonoBehaviour
 {
+    public static BoardManager Instance { get; private set; }
+
     [SerializeField] int _bomb;
     [SerializeField] int _row;
     [SerializeField] int _col;
@@ -20,6 +22,11 @@ public class BoardManager : MonoBehaviour
     Sell[,] _field;
 
     public Sell[,] Field { get => _field;}
+
+    private void Awake()
+    {
+        BoardManager.Instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -138,7 +145,7 @@ public class BoardManager : MonoBehaviour
             {
                 if (_field[r, c].bomb)
                 {
-                    Debug.Log("bomb");
+                    Explosion();
                 }
                 else if (_field[r, c].number == 0)
                 {
@@ -164,7 +171,19 @@ public class BoardManager : MonoBehaviour
 
     public void Flag(int r, int c)
     {
-        _field[r, c].state = SellState.Flag;
+        if (_field[r, c].state == SellState.Flag)
+        {
+            _field[r, c].state = SellState.Nomal;
+        }
+        else if(_field[r, c].state == SellState.Nomal)
+        {
+            _field[r, c].state = SellState.Flag;
+        }
+    }
+
+    void Explosion()
+    {
+        Debug.Log("bomb");
     }
 }
 
