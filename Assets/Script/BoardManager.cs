@@ -31,22 +31,8 @@ public class BoardManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _field = new Sell[_row, _col];
 
-        for (int i = 0; i < _bomb; i++)
-        {
-            int r = UnityEngine.Random.Range(0, _row);
-            int c = UnityEngine.Random.Range(0, _col);
-            _field[r, c].bomb = true;
-            for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
-            {
-                for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
-                {
-                    _field[l, m].number++;
-                }
-            }
-        }
-
+        SetUp();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _row; i++)
         {
@@ -65,6 +51,25 @@ public class BoardManager : MonoBehaviour
         }
         Debug.Log(sb);
 
+    }
+
+    public void SetUp()
+    {
+        _field = new Sell[_row, _col];
+
+        for (int i = 0; i < _bomb; i++)
+        {
+            int r = UnityEngine.Random.Range(0, _row);
+            int c = UnityEngine.Random.Range(0, _col);
+            _field[r, c].bomb = true;
+            for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
+            {
+                for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
+                {
+                    _field[l, m].number++;
+                }
+            }
+        }
     }
 
     private void Update()
