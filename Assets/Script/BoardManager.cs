@@ -7,11 +7,11 @@ using System.Text;
 /// <summary>
 /// ゲームボードの管理をするクラス
 /// </summary>
-public class BoardManager : MonoBehaviour
+public class BoardManager : SingletonMonoBehaviour<BoardManager>
 {
-    public static BoardManager Instance { get; private set; }
-
+    [Tooltip("爆弾の数")]
     [SerializeField] int _bomb;
+    [Tooltip("")]
     [SerializeField] int _row;
     [SerializeField] int _col;
     [SerializeField] int _row2;
@@ -21,53 +21,113 @@ public class BoardManager : MonoBehaviour
 
     Sell[,] _field;
 
-    public Sell[,] Field { get => _field;}
+    public Sell[,] Field { get => _field; }
 
-    private void Awake()
-    {
-        BoardManager.Instance = this;
-    }
+    public event Action OnSetUp;
+    public event Action OnUpdate;
+    public event Action OnExplosion;
 
     // Start is called before the first frame update
     void Start()
     {
-
         SetUp();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _row; i++)
         {
             for (int l = 0, m = _col; l < m; l++)
             {
-                if(_field[i, l].bomb)
+                if (_field[i, l].Bomb)
                 {
                     sb.Append("b");
                 }
                 else
                 {
-                    sb.Append(_field[i, l].number);
+                    sb.Append(_field[i, l].Number);
+                }
+            }
+            sb.AppendLine();
+        }
+        Debug.Log(sb);
+    }
+
+    public void SetUp()
+    {
+        SetField(_row, _col);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < _row; i++)
+        {
+            for (int l = 0, m = _col; l < m; l++)
+            {
+                if (_field[i, l].Bomb)
+                {
+                    sb.Append("b");
+                }
+                else
+                {
+                    sb.Append(_field[i, l].Number);
                 }
             }
             sb.AppendLine();
         }
         Debug.Log(sb);
 
+        for (int i = 0; i < _bomb; i++)
+        {
+            int r = UnityEngine.Random.Range(0, _row - 1);
+            int c = UnityEngine.Random.Range(0, _col - 1);
+            Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}, {r}, {c}");
+            _field[r, c].Bomb = true;
+            for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
+            {
+                for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
+                {
+                    _field[l, m].Number++;
+                }
+            }
+        }
+
+        OnSetUp();
+        OnUpdate();
     }
 
-    public void SetUp()
+    public void SetUp(int row, int col)
     {
-        _field = new Sell[_row, _col];
+        SetField(_row, _col);
 
         for (int i = 0; i < _bomb; i++)
         {
             int r = UnityEngine.Random.Range(0, _row);
             int c = UnityEngine.Random.Range(0, _col);
-            _field[r, c].bomb = true;
-            for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
+
+            if (_field[r, c].Bomb && r != row && c != col)
             {
-                for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
+                i--;
+            }
+            else
+            {
+                _field[r, c].Bomb = true;
+                for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
                 {
-                    _field[l, m].number++;
+                    for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
+                    {
+                        _field[l, m].Number++;
+                    }
                 }
+            }
+        }
+        OnSetUp();
+        OnUpdate();
+    }
+
+    void SetField(int row, int col)
+    {
+        _field = new Sell[row, col];
+
+        for (int i = 0; i < _field.GetLength(0); i++)
+        {
+            for (int k = 0; k < _field.GetLength(1); k++)
+            {
+                _field[i, k] = new Sell();
             }
         }
     }
@@ -83,18 +143,18 @@ public class BoardManager : MonoBehaviour
             {
                 for (int l = 0, m = _col; l < m; l++)
                 {
-                    if (_field[i, l].state == SellState.Nomal)
+                    if (_field[i, l].State == SellState.Nomal)
                     {
-                        if (_field[i, l].bomb)
+                        if (_field[i, l].Bomb)
                         {
                             sb.Append("b");
                         }
                         else
                         {
-                            sb.Append(_field[i, l].number);
+                            sb.Append(_field[i, l].Number);
                         }
                     }
-                    else if (_field[i, l].state == SellState.Flag)
+                    else if (_field[i, l].State == SellState.Flag)
                     {
                         sb.Append("f");
                     }
@@ -116,18 +176,18 @@ public class BoardManager : MonoBehaviour
             {
                 for (int l = 0, m = _col; l < m; l++)
                 {
-                    if (_field[i, l].state == SellState.Nomal)
+                    if (_field[i, l].State == SellState.Nomal)
                     {
-                        if (_field[i, l].bomb)
+                        if (_field[i, l].Bomb)
                         {
                             sb.Append("b");
                         }
                         else
                         {
-                            sb.Append(_field[i, l].number);
+                            sb.Append(_field[i, l].Number);
                         }
                     }
-                    else if(_field[i, l].state == SellState.Flag) 
+                    else if (_field[i, l].State == SellState.Flag)
                     {
                         sb.Append("f");
                     }
@@ -144,22 +204,22 @@ public class BoardManager : MonoBehaviour
 
     public void Dig(int r, int c)
     {
-        if(r >= 0 && r < _row && c >= 0 && c < _col)
+        if (r >= 0 && r < _row && c >= 0 && c < _col)
         {
-            if (_field[r, c].state == SellState.Nomal)
+            if (_field[r, c].State == SellState.Nomal)
             {
-                if (_field[r, c].bomb)
+                if (_field[r, c].Bomb)
                 {
                     Explosion();
                 }
-                else if (_field[r, c].number == 0)
+                else if (_field[r, c].Number == 0)
                 {
-                    _field[r, c].state = SellState.Dug;
+                    _field[r, c].State = SellState.Dug;
                     for (int i = r - 1 >= 0 ? r - 1 : 0; i < _field.GetLength(0) && i <= r + 1; i++)
                     {
                         for (int l = c - 1 >= 0 ? c - 1 : 0; l < _field.GetLength(1) && l <= c + 1; l++)
                         {
-                            if (_field[i, l].state == SellState.Nomal)
+                            if (_field[i, l].State == SellState.Nomal)
                             {
                                 Dig(i, l);
                             }
@@ -168,44 +228,59 @@ public class BoardManager : MonoBehaviour
                 }
                 else
                 {
-                    _field[r, c].state = SellState.Dug;
+                    _field[r, c].State = SellState.Dug;
                 }
             }
-        } 
+        }
+        OnUpdate();
     }
 
     public void Flag(int r, int c)
     {
-        if (_field[r, c].state == SellState.Flag)
+        if (_field[r, c].State == SellState.Flag)
         {
-            _field[r, c].state = SellState.Nomal;
+            _field[r, c].State = SellState.Nomal;
         }
-        else if(_field[r, c].state == SellState.Nomal)
+        else if (_field[r, c].State == SellState.Nomal)
         {
-            _field[r, c].state = SellState.Flag;
+            _field[r, c].State = SellState.Flag;
         }
+        OnUpdate();
     }
 
     void Explosion()
     {
         Debug.Log("bomb");
+        OnExplosion();
+        SetUp();
     }
 }
 
 /// <summary>
 /// マスの情報を記録する
 /// </summary>
-public struct Sell
+public class Sell
 {
-    public int number;
-    public SellState state;
-    public bool bomb;
+    int number;
+    SellState state;
+    bool bomb;
+
+    public int Number { get => number; set => number = value; }
+    public SellState State { get => state; set => state = value; }
+    public bool Bomb { get => bomb; set => bomb = value; }
+
+    public Sell()
+    {
+        number = 0;
+        state = SellState.Nomal;
+        bomb = false;
+    }
 }
 
 /// <summary>
 /// マスの状態
 /// </summary>
- public enum SellState
+public enum SellState
 {
     /// <summary>何もしてない</summary>
     Nomal,

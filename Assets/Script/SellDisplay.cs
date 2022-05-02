@@ -19,25 +19,25 @@ public class SellDisplay : MonoBehaviour
         _sell = _boardManager.Field[_row, _col];
     }
 
-    // Update is called once per frame
-    void Update()
+
+    private void OnUpdate()
     {
-        if(_sell.state == SellState.Nomal)
+        if (_sell.State == SellState.Nomal)
         {
-            if (_sell.bomb)
+            if (_sell.Bomb)
             {
                 _text.text = "bomb";
             }
             else
             {
-                _text.text = $"{_sell.number}";
+                _text.text = $"{_sell.Number}";
             }
         }
-        else if(_sell.state == SellState.Flag)
+        else if (_sell.State == SellState.Flag)
         {
             _text.text = "flag";
         }
-        else if(_sell.state == SellState.Dug)
+        else if (_sell.State == SellState.Dug)
         {
             _text.text = "dug";
         }
