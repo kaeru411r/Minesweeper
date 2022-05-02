@@ -17,10 +17,11 @@ public class SellDisplay : MonoBehaviour
     {
         _text = GetComponent<TextMeshProUGUI>();
         _sell = _boardManager.Field[_row, _col];
+        BoardManager.Instance.OnUpdate += Transcription;
     }
 
 
-    private void OnUpdate()
+    private void Transcription()
     {
         if (_sell.State == SellState.Nomal)
         {
