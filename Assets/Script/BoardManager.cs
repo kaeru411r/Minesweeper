@@ -115,7 +115,7 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
             int c = UnityEngine.Random.Range(0, _col);
             Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
             //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
-            if (_field[r, c].Bomb || Mathf.Abs(r - row) <= 1 || Mathf.Abs(c - col) <= 1)
+            if (_field[r, c].Bomb || Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1)
             {
                 i--;
                 failure++;
