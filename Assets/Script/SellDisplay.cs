@@ -8,15 +8,14 @@ public class SellDisplay : MonoBehaviour
     [SerializeField] int _row;
     [SerializeField] int _col;
     Sell _sell;
-    BoardManager _boardManager = BoardManager.Instance;
     TextMeshProUGUI _text;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        _text = GetComponent<TextMeshProUGUI>();
-        _sell = _boardManager.Field[_row, _col];
+        _text = GetComponentInChildren<TextMeshProUGUI>();
+        _sell = BoardManager.Instance.Field[_row, _col];
         BoardManager.Instance.OnUpdate += Transcription;
     }
 
@@ -31,6 +30,7 @@ public class SellDisplay : MonoBehaviour
             }
             else
             {
+                Debug.Log(_sell.ToString());
                 _text.text = $"{_sell.Number}";
             }
         }

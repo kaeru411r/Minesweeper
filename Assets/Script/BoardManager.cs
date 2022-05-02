@@ -21,7 +21,17 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
 
 
     /// <summary>ƒ{[ƒh‘S‘Ì‚ÌSell‚ğŠi”[</summary>
-    public Sell[,] Field { get => _field; }
+    public Sell[,] Field 
+    {
+        get
+        {
+            if(_field == null)
+            {
+                SetField(_row, _col);
+            }
+            return _field;
+        }
+    }
 
     /// <summary>‰Šú‰»‚ÉŒÄ‚Ño‚µ</summary>
     public event Action OnSetUp;
@@ -45,22 +55,22 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
             {
                 if (_field[i, l].State == SellState.Nomal)
                 {
-                    if (_field[i, l].Bomb)
-                    {
-                        sb.Append("b");
-                    }
-                    else
-                    {
-                        sb.Append(_field[i, l].Number);
-                    }
+                    sb.Append("Z");
                 }
                 else if(_field[i, l].State == SellState.Dug)
                 {
-                    sb.Append("x");
+                    if (_field[i, l].Number != 0)
+                    {
+                        sb.Append($"{_field[i, l].Number} ");
+                    }
+                    else
+                    {
+                        sb.Append("~ ");
+                    }
                 }
                 else if (_field[i, l].State == SellState.Flag)
                 {
-                    sb.Append("f");
+                    sb.Append("‚e");
                 }
             }
             sb.AppendLine();
@@ -285,6 +295,11 @@ public class Sell
         number = 0;
         state = SellState.Nomal;
         bomb = false;
+    }
+
+    public override string ToString()
+    {
+        return $"{{{state}, {number}, {bomb}}}";
     }
 }
 

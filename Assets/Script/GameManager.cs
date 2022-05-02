@@ -8,34 +8,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     bool _isPlay = false;
 
     /// <summary>ÉQÅ[ÉÄÇÃêiçsèÛë‘</summary>
-    public bool IsPlay { get => _isPlay;}
+    public bool IsPlay { get => _isPlay; }
 
-    [SerializeField] int _row;
-    [SerializeField] int _col;
-    [SerializeField] bool _dig = false;
-    [SerializeField] bool _flag = false;
-    [SerializeField] bool _start = false;
     private void Start()
     {
         BoardManager.Instance.OnExplosion += Explosion;
-    }
-    private void Update()
-    {
-        if (_dig)
-        {
-            _dig = false;
-            BoardManager.Instance.Dig(_row, _col);
-        }
-        if (_flag)
-        {
-            _flag = false;
-            BoardManager.Instance.Flag(_row, _col);
-        }
-        if (_start)
-        {
-            _start = false;
-            GameStart(_row, _col);
-        }
+        BoardManager.Instance.SetUp();
     }
 
     /// <summary>
@@ -43,15 +21,16 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    public void GameStart(int row ,int col)
+    public void GameStart(int row, int col)
     {
-        BoardManager.Instance.SetUp(row, col);
         _isPlay = true;
+        BoardManager.Instance.SetUp(row, col);
         BoardManager.Instance.Dig(row, col);
     }
 
     public void Explosion()
     {
-        GameStart(_row, _col);
+        _isPlay = false;
+        BoardManager.Instance.SetUp();
     }
 }
