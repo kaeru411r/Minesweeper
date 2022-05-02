@@ -238,12 +238,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bomb: 5
-  _row: 2
-  _col: 2
-  _row2: 1
-  _col2: 0
-  _dig: 0
-  _flag: 0
+  _row: 10
+  _col: 10
 --- !u!4 &1540425028
 Transform:
   m_ObjectHideFlags: 0
@@ -271,3 +267,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a44afba743e2b44853317a74b6fb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _row: 0
+  _col: 0
+  _dig: 0
+  _flag: 0
+  _start: 0

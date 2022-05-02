@@ -15,10 +15,6 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
     [SerializeField] int _row;
     [Tooltip("列数")]
     [SerializeField] int _col;
-    [SerializeField] int _row2;
-    [SerializeField] int _col2;
-    [SerializeField] bool _dig = false;
-    [SerializeField] bool _flag = false;
 
     /// <summary>ボード全体のSellを格納</summary>
     Sell[,] _field;
@@ -47,13 +43,24 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
         {
             for (int l = 0, m = _col; l < m; l++)
             {
-                if (_field[i, l].Bomb)
+                if (_field[i, l].State == SellState.Nomal)
                 {
-                    sb.Append("b");
+                    if (_field[i, l].Bomb)
+                    {
+                        sb.Append("b");
+                    }
+                    else
+                    {
+                        sb.Append(_field[i, l].Number);
+                    }
                 }
-                else
+                else if(_field[i, l].State == SellState.Dug)
                 {
-                    sb.Append(_field[i, l].Number);
+                    sb.Append("x");
+                }
+                else if (_field[i, l].State == SellState.Flag)
+                {
+                    sb.Append("f");
                 }
             }
             sb.AppendLine();
@@ -160,19 +167,6 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
         }
     }
 
-    private void Update()
-    {
-        if (_dig)
-        {
-            _dig = false;
-            GameManager.Instance.GameStart(_row2, _col2);
-        }
-        if (_flag)
-        {
-            _flag = false;
-            Flag(_row2, _col2);
-        }
-    }
 
     /// <summary>
     /// 指定したセルを掘る
@@ -233,7 +227,7 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
     void Explosion()
     {
         Debug.Log("bomb");
-        OnExplosion();
+        CallOnExplosion();
     }
 
     /// <summary>
