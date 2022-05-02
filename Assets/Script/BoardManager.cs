@@ -37,7 +37,11 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
     // Start is called before the first frame update
     void Start()
     {
-        SetUp();
+        OnUpdate += Log;
+    }
+
+    void Log()
+    {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _row; i++)
         {
@@ -59,71 +63,83 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
 
     public void SetUp()
     {
+        _bomb = _bomb <= _row * _col ? _bomb : _row * _col;
         SetField(_row, _col);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < _row; i++)
-        {
-            for (int l = 0, m = _col; l < m; l++)
-            {
-                if (_field[i, l].Bomb)
-                {
-                    sb.Append("b");
-                }
-                else
-                {
-                    sb.Append(_field[i, l].Number);
-                }
-            }
-            sb.AppendLine();
-        }
-        Debug.Log(sb);
+        int failure = 0;
+        int failureLimit = _row * _col * 2;
 
         for (int i = 0; i < _bomb; i++)
         {
             int r = UnityEngine.Random.Range(0, _row - 1);
             int c = UnityEngine.Random.Range(0, _col - 1);
-            _field[r, c].Bomb = true;
-            //îöíeÇÃé¸àÕÇÃÉ}ÉXÇÃîöíeêîÅ{ÇP
-            for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
+            //îöíeÇÃîzíuó\íËâ”èäÇ…îöíeÇ™Ç†Ç¡ÇΩÇÁ
+            if (_field[r, c].Bomb)
             {
-                for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
-                {
-                    _field[l, m].Number++;
-                }
+                i--;
+                failure++;
+            }
+            else
+            {
+                BombSet(r, c);
+            }
+
+            if (failure > failureLimit)
+            {
+                failure = 0;
+                Debug.LogWarning("îöíeÇÃîzíuâ¬î\â”èäÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩ");
+                _bomb--;
             }
         }
+
         CallOnSetUp();
+        CallOnUpdate();
     }
 
     public void SetUp(int row, int col)
     {
+        _bomb = _bomb <= _row * _col ? _bomb : _row * _col;
         SetField(_row, _col);
+        int failure = 0;
+        int failureLimit = _row * _col * 2;
 
         for (int i = 0; i < _bomb; i++)
         {
             int r = UnityEngine.Random.Range(0, _row);
             int c = UnityEngine.Random.Range(0, _col);
-
-            //îöíeÇÃîzíuó\íËâ”èäÇ™îzíuã÷é~ÇæÇ¡ÇΩÇÁçƒíäëI
-            if (_field[r, c].Bomb && r != row && c != col)
+            Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
+            //îöíeÇÃîzíuó\íËâ”èäÇ™éwíËÉZÉãÇÃé¸àÕÇPÉ}ÉXÇæÇ¡ÇΩÇÁçƒíäëI
+            if (_field[r, c].Bomb || Mathf.Abs(r - row) <= 1 || Mathf.Abs(c - col) <= 1)
             {
                 i--;
+                failure++;
             }
             else
             {
-                //îöíeÇÃé¸àÕÇÃÉ}ÉXÇÃîöíeêîÅ{ÇP
-                _field[r, c].Bomb = true;
-                for (int l = r - 1 >= 0 ? r - 1 : 0; l < _field.GetLength(0) && l <= r + 1; l++)
-                {
-                    for (int m = c - 1 >= 0 ? c - 1 : 0; m < _field.GetLength(1) && m <= c + 1; m++)
-                    {
-                        _field[l, m].Number++;
-                    }
-                }
+                BombSet(r, c);
+            }
+
+            if (failure > failureLimit)
+            {
+                failure = 0;
+                Debug.LogWarning("îöíeÇÃîzíuâ¬î\â”èäÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩ");
+                _bomb--;
             }
         }
         CallOnSetUp();
         CallOnUpdate();
+    }
+
+    void BombSet(int row, int col)
+    {
+        _field[row, col].Bomb = true;
+        //îöíeÇÃé¸àÕÇÃÉ}ÉXÇÃîöíeêîÅ{ÇP
+        for (int l = row - 1 >= 0 ? row - 1 : 0; l < _field.GetLength(0) && l <= row + 1; l++)
+        {
+            for (int m = col - 1 >= 0 ? col - 1 : 0; m < _field.GetLength(1) && m <= col + 1; m++)
+            {
+                _field[l, m].Number++;
+            }
+        }
     }
 
     /// <summary>
@@ -149,68 +165,12 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
         if (_dig)
         {
             _dig = false;
-            Dig(_row2, _col2);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < _row; i++)
-            {
-                for (int l = 0, m = _col; l < m; l++)
-                {
-                    if (_field[i, l].State == SellState.Nomal)
-                    {
-                        if (_field[i, l].Bomb)
-                        {
-                            sb.Append("b");
-                        }
-                        else
-                        {
-                            sb.Append(_field[i, l].Number);
-                        }
-                    }
-                    else if (_field[i, l].State == SellState.Flag)
-                    {
-                        sb.Append("f");
-                    }
-                    else
-                    {
-                        sb.Append("x");
-                    }
-                }
-                sb.AppendLine();
-            }
-            Debug.Log(sb);
+            GameManager.Instance.GameStart(_row2, _col2);
         }
         if (_flag)
         {
             _flag = false;
             Flag(_row2, _col2);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < _row; i++)
-            {
-                for (int l = 0, m = _col; l < m; l++)
-                {
-                    if (_field[i, l].State == SellState.Nomal)
-                    {
-                        if (_field[i, l].Bomb)
-                        {
-                            sb.Append("b");
-                        }
-                        else
-                        {
-                            sb.Append(_field[i, l].Number);
-                        }
-                    }
-                    else if (_field[i, l].State == SellState.Flag)
-                    {
-                        sb.Append("f");
-                    }
-                    else
-                    {
-                        sb.Append("x");
-                    }
-                }
-                sb.AppendLine();
-            }
-            Debug.Log(sb);
         }
     }
 
@@ -232,24 +192,21 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
                 else if (_field[r, c].Number == 0)
                 {
                     _field[r, c].State = SellState.Dug;
-                    for (int i = r - 1 >= 0 ? r - 1 : 0; i < _field.GetLength(0) && i <= r + 1; i++)
+                    for (int i = r - 1; i <= r + 1; i++)
                     {
-                        for (int l = c - 1 >= 0 ? c - 1 : 0; l < _field.GetLength(1) && l <= c + 1; l++)
+                        for (int l = c - 1; l <= c + 1; l++)
                         {
-                            if (_field[i, l].State == SellState.Nomal)
-                            {
-                                Dig(i, l);
-                            }
+                            Dig(i, l);
                         }
                     }
                 }
                 else
                 {
                     _field[r, c].State = SellState.Dug;
+                    CallOnUpdate();
                 }
             }
         }
-        CallOnUpdate();
     }
 
     /// <summary>
@@ -268,6 +225,15 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
             _field[r, c].State = SellState.Flag;
         }
         CallOnUpdate();
+    }
+
+    /// <summary>
+    /// îöî≠
+    /// </summary>
+    void Explosion()
+    {
+        Debug.Log("bomb");
+        OnExplosion();
     }
 
     /// <summary>
@@ -301,16 +267,6 @@ public class BoardManager : SingletonMonoBehaviour<BoardManager>
         {
             OnExplosion();
         }
-    }
-
-    /// <summary>
-    /// îöî≠
-    /// </summary>
-    void Explosion()
-    {
-        Debug.Log("bomb");
-        OnExplosion();
-        SetUp();
     }
 }
 
