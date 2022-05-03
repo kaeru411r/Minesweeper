@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>
 /// ゲームボードの管理をするクラス
 /// </summary>
-public class BoardManager : SingletonMonoBehaviour<BoardManager>
+public class BoardManager : MonoBehaviour
 {
     [Tooltip("爆弾の数")]
     [SerializeField] int _bomb;
