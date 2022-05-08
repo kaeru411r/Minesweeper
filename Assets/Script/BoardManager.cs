@@ -50,34 +50,34 @@ public class BoardManager : MonoBehaviour
     void Log()
     {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < _fieldSize.y; i++)
+        for (int i = 0; i < _field.GetLength(0); i++)
         {
-            for (int l = 0, m = _fieldSize.x; l < m; l++)
+            for (int k = 0; k < _field.GetLength(1); k++)
             {
-                if (_field[i, l].Bomb)
+                if (_field[i, k].Bomb)
                 {
                     sb.Append("●");
                 }
-                else if (_field[i, l].State == SellState.Nomal)
+                else if (_field[i, k].State == SellState.Nomal)
                 {
                     sb.Append("■");
                 }
-                else if (_field[i, l].State == SellState.Dug)
+                else if (_field[i, k].State == SellState.Dug)
                 {
-                    if (_field[i, l].Number != 0)
+                    if (_field[i, k].Number != 0)
                     {
-                        sb.Append($"{_field[i, l].Number} ");
+                        sb.Append($"{_field[i, k].Number} ");
                     }
                     else
                     {
                         sb.Append("Ｘ");
                     }
                 }
-                else if (_field[i, l].State == SellState.Flag)
+                else if (_field[i, k].State == SellState.Flag)
                 {
                     sb.Append("Ｆ");
                 }
-                else if (_field[i, l].State == SellState.Null)
+                else if (_field[i, k].State == SellState.Null)
                 {
                     sb.Append("□");
                 }
@@ -204,11 +204,11 @@ public class BoardManager : MonoBehaviour
         {
             _field[row, col].Bomb = true;
             //爆弾の周囲のマスの爆弾数＋１
-            for (int l = row - 1 >= 0 ? row - 1 : 0; l < _field.GetLength(0) && l <= row + 1; l++)
+            for (int i = row - 1 >= 0 ? row - 1 : 0; i < _field.GetLength(0) && i <= row + 1; i++)
             {
-                for (int m = col - 1 >= 0 ? col - 1 : 0; m < _field.GetLength(1) && m <= col + 1; m++)
+                for (int k = col - 1 >= 0 ? col - 1 : 0; k < _field.GetLength(1) && k <= col + 1; k++)
                 {
-                    _field[l, m].Number++;
+                    _field[i, k].Number++;
                 }
             }
             return true;
@@ -223,12 +223,17 @@ public class BoardManager : MonoBehaviour
     /// <param name="col"></param>
     public void SetField()
     {
+        //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
         x.Add(new int[] { _fieldSettings[0].Col + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
+        //yの両端を格納する配列のリスト
         List<int[]> y = new List<int[]>();
         y.Add(new int[] { _fieldSettings[0].Row + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
+        //xとyそれぞれの最小値
         Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
+        //xとyそれぞれの最大値
         Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
+        //xとyそれぞれの最小、最大値を決める
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
             x.Add(new int[] { _fieldSettings[i].Col + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
@@ -239,30 +244,29 @@ public class BoardManager : MonoBehaviour
                 max = new Vector2Int(Mathf.Max(x[i].Max(), max.x), Mathf.Max(y[i].Max(), max.y));
             }
         }
-
-        _field = new Sell[max.y - min.y, max.x - min.x];
+        //fieldのサイズを決定し、配列を用意
+        _field = new Sell[max.y - min.y + 1, max.x - min.x + 1];
+        //fieldのサイズに合わせて
         _fieldSize = new Vector2Int(max.y - min.y, max.x - min.x);
 
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
+                Debug.Log($"{i}, {k}");
                 _field[i, k] = new Sell();
             }
         }
-        Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
+
         for (int i = 0; i < _fieldSettings.Length; i++)
         {
-            StringBuilder sb = new StringBuilder();
-            for (int k = x[i].Min() + min.y; k <= x[i].Max() - min.y - 1; k++)
+            for (int k = x[i].Min() - min.y; k <= x[i].Max() - min.y; k++)
             {
-                for (int n = y[i].Min() + min.x; n <= y[i].Max() - min.x - 1; n++)
+                for (int m = y[i].Min() - min.x; m <= y[i].Max() - min.x; m++)
                 {
-                    sb.AppendLine($"{k}, {n}");
-                    _field[k, n].State = SellState.Nomal;
+                    _field[k, m].State = SellState.Nomal;
                 }
             }
-            Debug.Log(sb);
         }
     }
 
