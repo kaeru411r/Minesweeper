@@ -23,6 +23,7 @@ public class TestController : MonoBehaviour
                 _gameManager.GameStart(_row, _col);
             }
             _dig = false;
+            Debug.Log(_gameManager.IsPlay);
         }
         if (_flag)
         {

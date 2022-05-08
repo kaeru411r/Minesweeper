@@ -24,9 +24,11 @@ public class GameManager : MonoBehaviour
     /// <param name="col"></param>
     public void GameStart(int row, int col)
     {
-        _isPlay = true;
-        _boardManager.SetUp(row, col);
-        _boardManager.Dig(row, col);
+        if (_boardManager.SetUp(row, col))
+        {
+            _isPlay = true;
+            _boardManager.Dig(row, col);
+        }
     }
 
     public void Explosion()

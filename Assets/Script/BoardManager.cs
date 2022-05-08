@@ -53,7 +53,11 @@ public class BoardManager : MonoBehaviour
         {
             for (int l = 0, m = _fieldSize.x; l < m; l++)
             {
-                if (_field[i, l].State == SellState.Nomal)
+                if (_field[i, l].Bomb)
+                {
+                    sb.Append("●");
+                }
+                else if (_field[i, l].State == SellState.Nomal)
                 {
                     sb.Append("■");
                 }
@@ -82,6 +86,9 @@ public class BoardManager : MonoBehaviour
         Debug.Log(sb);
     }
 
+    /// <summary>
+    /// フィールドのセットアップ
+    /// </summary>
     public void SetUp()
     {
         _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
@@ -94,14 +101,10 @@ public class BoardManager : MonoBehaviour
             int r = UnityEngine.Random.Range(0, _fieldSize.y - 1);
             int c = UnityEngine.Random.Range(0, _fieldSize.x - 1);
             //爆弾の配置予定箇所に爆弾があったら
-            if (_field[r, c].Bomb)
+            if (!BombSet(r, c))
             {
                 i--;
                 failure++;
-            }
-            else
-            {
-                BombSet(r, c);
             }
 
             if (failure > failureLimit)
@@ -116,51 +119,81 @@ public class BoardManager : MonoBehaviour
         CallOnUpdate();
     }
 
-    public void SetUp(int row, int col)
+    /// <summary>
+    /// フィールドのセットアップ
+    /// 指定した座標の周囲1マス以外に爆弾を指定数設置する
+    /// 指定箇所がエリア外ならフィールドのセットアップのみをしてfalseを返す
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns>指定座標がエリア内かどうか</returns>
+    public bool SetUp(int row, int col)
     {
         _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
         SetField(_fieldSettings);
-        int failure = 0;
-        int failureLimit = _fieldSize.y * _fieldSize.x * 2;
 
-        for (int i = 0; i < _bomb; i++)
+        if (row >= 0 && row <= _fieldSize.y && col >= 0 && col <= _fieldSize.x)
         {
-            int r = UnityEngine.Random.Range(0, _fieldSize.y);
-            int c = UnityEngine.Random.Range(0, _fieldSize.x);
-            Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
-            //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
-            if (_field[r, c].Bomb || Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1)
-            {
-                i--;
-                failure++;
-            }
-            else
-            {
-                BombSet(r, c);
-            }
 
-            if (failure > failureLimit)
+            int failure = 0;
+            int failureLimit = _fieldSize.y * _fieldSize.x * 2;
+
+            for (int i = 0; i < _bomb; i++)
             {
-                failure = 0;
-                Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
-                _bomb--;
+                int r = UnityEngine.Random.Range(0, _fieldSize.y);
+                int c = UnityEngine.Random.Range(0, _fieldSize.x);
+                Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
+                //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
+                if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
+                {
+                    i--;
+                    failure++;
+                }
+                else
+                {
+                    if (!BombSet(r, c))
+                    {
+                        i--;
+                        failure++;
+                    }
+                }
+
+                if (failure > failureLimit)
+                {
+                    failure = 0;
+                    Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
+                    _bomb--;
+                }
             }
+            CallOnSetUp();
+            CallOnUpdate();
+            return true;
         }
-        CallOnSetUp();
-        CallOnUpdate();
+        return false;
     }
 
-    void BombSet(int row, int col)
+    /// <summary>
+    /// 爆弾の設置を試みる
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns>設置の成否</returns>
+    bool BombSet(int row, int col)
     {
-        _field[row, col].Bomb = true;
-        //爆弾の周囲のマスの爆弾数＋１
-        for (int l = row - 1 >= 0 ? row - 1 : 0; l < _field.GetLength(0) && l <= row + 1; l++)
+        if (!(_field[row, col].Bomb || _field[row, col].State == SellState.Null))
         {
-            for (int m = col - 1 >= 0 ? col - 1 : 0; m < _field.GetLength(1) && m <= col + 1; m++)
+            _field[row, col].Bomb = true;
+            //爆弾の周囲のマスの爆弾数＋１
+            for (int l = row - 1 >= 0 ? row - 1 : 0; l < _field.GetLength(0) && l <= row + 1; l++)
             {
-                _field[l, m].Number++;
+                for (int m = col - 1 >= 0 ? col - 1 : 0; m < _field.GetLength(1) && m <= col + 1; m++)
+                {
+                    _field[l, m].Number++;
+                }
             }
+            return true;
         }
+        return false;
     }
 
     /// <summary>
@@ -178,8 +211,8 @@ public class BoardManager : MonoBehaviour
         Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
         for (int i = 1; i < fs.Length; i++)
         {
-            x.Add( new int[] { fs[i].Col + fs[i].Origin.x, fs[i].Origin.x });
-            y.Add( new int[] { fs[i].Row + fs[i].Origin.y, fs[i].Origin.y });
+            x.Add(new int[] { fs[i].Col + fs[i].Origin.x, fs[i].Origin.x });
+            y.Add(new int[] { fs[i].Row + fs[i].Origin.y, fs[i].Origin.y });
             if (x[i].Min() < min.x || x[i].Max() > max.x || y[i].Min() < min.y || y[i].Max() > max.y)
             {
                 min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
