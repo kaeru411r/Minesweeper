@@ -55,7 +55,7 @@ public class BoardManager : MonoBehaviour
             {
                 if (_field[i, l].State == SellState.Nomal)
                 {
-                    sb.Append("ÅZ");
+                    sb.Append("Å°");
                 }
                 else if (_field[i, l].State == SellState.Dug)
                 {
@@ -65,7 +65,7 @@ public class BoardManager : MonoBehaviour
                     }
                     else
                     {
-                        sb.Append("Å~ ");
+                        sb.Append("Çw");
                     }
                 }
                 else if (_field[i, l].State == SellState.Flag)
@@ -74,7 +74,7 @@ public class BoardManager : MonoBehaviour
                 }
                 else if (_field[i, l].State == SellState.Null)
                 {
-                    sb.Append("Å@");
+                    sb.Append("Å†");
                 }
             }
             sb.AppendLine();
@@ -200,14 +200,16 @@ public class BoardManager : MonoBehaviour
         Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
         for (int i = 0; i < fs.Length; i++)
         {
-            for (int k = fs[i].Origin.x + min.y; k <= fs[i].Origin.x + fs[i].Row - min.y - 1; k++)
+            StringBuilder sb = new StringBuilder();
+            for (int k = x[i].Min() + min.y; k <= x[i].Max() - min.y - 1; k++)
             {
-                for (int n = fs[i].Origin.y + min.x; n <= fs[i].Origin.y + fs[i].Col - min.x - 1; n++)
+                for (int n = y[i].Min() + min.x; n <= y[i].Max() - min.x - 1; n++)
                 {
-                    Debug.Log($"{k}, {n}");
+                    sb.AppendLine($"{k}, {n}");
                     _field[k, n].State = SellState.Nomal;
                 }
             }
+            Debug.Log(sb);
         }
     }
 

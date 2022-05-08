@@ -499,8 +499,8 @@ MonoBehaviour:
     Row: 2
     Col: 10
   - Origin: {x: 10, y: 10}
-    Row: -2
-    Col: -10
+    Row: -10
+    Col: -2
   - Origin: {x: 10, y: 10}
     Row: -2
     Col: -10
