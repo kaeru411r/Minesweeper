@@ -16,8 +16,6 @@ public class BoardManager : MonoBehaviour
 
     /// <summary>ボード全体のSellを格納</summary>
     Sell[,] _field;
-    /// <summary>ボードのサイズ</summary>
-    Vector2Int _fieldSize;
 
 
     /// <summary>ボード全体のSellを格納</summary>
@@ -92,15 +90,15 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     public void SetUp()
     {
-        _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
+        _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
         SetField();
         int failure = 0;
-        int failureLimit = _fieldSize.y * _fieldSize.x * 2;
+        int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
 
         for (int i = 0; i < _bomb; i++)
         {
-            int r = UnityEngine.Random.Range(0, _fieldSize.y - 1);
-            int c = UnityEngine.Random.Range(0, _fieldSize.x - 1);
+            int r = UnityEngine.Random.Range(0, _field.GetLength(0) - 1);
+            int c = UnityEngine.Random.Range(0, _field.GetLength(1) - 1);
             //爆弾の配置予定箇所に爆弾があったら
             if (!BombSet(r, c))
             {
@@ -130,19 +128,19 @@ public class BoardManager : MonoBehaviour
     /// <returns>指定座標がエリア内かどうか</returns>
     public bool SetUp(int row, int col)
     {
-        _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
+        _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
         SetField();
 
         if (EreaCheck(row, col))
         {
 
             int failure = 0;
-            int failureLimit = _fieldSize.y * _fieldSize.x * 2;
+            int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
 
             for (int i = 0; i < _bomb; i++)
             {
-                int r = UnityEngine.Random.Range(0, _fieldSize.y);
-                int c = UnityEngine.Random.Range(0, _fieldSize.x);
+                int r = UnityEngine.Random.Range(0, _field.GetLength(0) - 1);
+                int c = UnityEngine.Random.Range(0, _field.GetLength(1) - 1);
                 Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
                 //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
                 if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
@@ -181,7 +179,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>指定座標がエリア内か否か</returns>
     bool EreaCheck(int row, int col)
     {
-        if(row >= 0 && row <= _fieldSize.y && col >= 0 && col <= _fieldSize.x)
+        if(row >= 0 && row < _field.GetLength(0) && col >= 0 && col < _field.GetLength(1))
         {
             if(_field[row, col].State != SellState.Null)
             {
@@ -246,8 +244,6 @@ public class BoardManager : MonoBehaviour
         }
         //fieldのサイズを決定し、配列を用意
         _field = new Sell[max.y - min.y + 1, max.x - min.x + 1];
-        //fieldのサイズに合わせて
-        _fieldSize = new Vector2Int(max.y - min.y, max.x - min.x);
 
         for (int i = 0; i < _field.GetLength(0); i++)
         {
@@ -278,7 +274,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="c"></param>
     public void Dig(int r, int c)
     {
-        if (r >= 0 && r < _fieldSize.y && c >= 0 && c < _fieldSize.x)
+        if (r >= 0 && r < _field.GetLength(0) && c >= 0 && c < _field.GetLength(1))
         {
             if (_field[r, c].State == SellState.Nomal)
             {
