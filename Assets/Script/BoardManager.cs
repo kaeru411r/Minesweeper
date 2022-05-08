@@ -47,6 +47,7 @@ public class BoardManager : MonoBehaviour
 
     void Log()
     {
+        Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _field.GetLength(0); i++)
         {
@@ -97,8 +98,8 @@ public class BoardManager : MonoBehaviour
 
         for (int i = 0; i < _bomb; i++)
         {
-            int r = UnityEngine.Random.Range(0, _field.GetLength(0) - 1);
-            int c = UnityEngine.Random.Range(0, _field.GetLength(1) - 1);
+            int r = UnityEngine.Random.Range(0, _field.GetLength(0));
+            int c = UnityEngine.Random.Range(0, _field.GetLength(1));
             //îöíeÇÃîzíuó\íËâ”èäÇ…îöíeÇ™Ç†Ç¡ÇΩÇÁ
             if (!BombSet(r, c))
             {
@@ -139,8 +140,8 @@ public class BoardManager : MonoBehaviour
 
             for (int i = 0; i < _bomb; i++)
             {
-                int r = UnityEngine.Random.Range(0, _field.GetLength(0) - 1);
-                int c = UnityEngine.Random.Range(0, _field.GetLength(1) - 1);
+                int r = UnityEngine.Random.Range(0, _field.GetLength(0));
+                int c = UnityEngine.Random.Range(0, _field.GetLength(1));
                 Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
                 //îöíeÇÃîzíuó\íËâ”èäÇ™éwíËÉZÉãÇÃé¸àÕÇPÉ}ÉXÇæÇ¡ÇΩÇÁçƒíäëI
                 if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
@@ -198,6 +199,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>ê›íuÇÃê¨î€</returns>
     bool BombSet(int row, int col)
     {
+        Debug.Log($"{row}, {col}, {_field[row, col]}");
         if (!(_field[row, col].Bomb || _field[row, col].State == SellState.Null))
         {
             _field[row, col].Bomb = true;
