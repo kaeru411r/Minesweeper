@@ -198,14 +198,14 @@ public class BoardManager : MonoBehaviour
             }
         }
         Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
-        foreach (var b in fs)
+        for (int i = 0; i < fs.Length; i++)
         {
-            for (int i = b.Origin.x + min.y; i <= b.Origin.x + b.Row - min.y - 1; i++)
+            for (int k = fs[i].Origin.x + min.y; k <= fs[i].Origin.x + fs[i].Row - min.y - 1; k++)
             {
-                for (int k = b.Origin.y + min.x; k <= b.Origin.y + b.Col - min.x - 1; k++)
+                for (int n = fs[i].Origin.y + min.x; n <= fs[i].Origin.y + fs[i].Col - min.x - 1; n++)
                 {
-                    Debug.Log($"{i}, {k}");
-                    _field[i, k].State = SellState.Nomal;
+                    Debug.Log($"{k}, {n}");
+                    _field[k, n].State = SellState.Nomal;
                 }
             }
         }
