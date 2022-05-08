@@ -311,15 +311,18 @@ public class BoardManager : MonoBehaviour
     /// <param name="c"></param>
     public void Flag(int r, int c)
     {
-        if (_field[r, c].State == SellState.Flag)
+        if (EreaCheck(r, c))
         {
-            _field[r, c].State = SellState.Nomal;
+            if (_field[r, c].State == SellState.Flag)
+            {
+                _field[r, c].State = SellState.Nomal;
+            }
+            else if (_field[r, c].State == SellState.Nomal)
+            {
+                _field[r, c].State = SellState.Flag;
+            }
+            CallOnUpdate();
         }
-        else if (_field[r, c].State == SellState.Nomal)
-        {
-            _field[r, c].State = SellState.Flag;
-        }
-        CallOnUpdate();
     }
 
     /// <summary>
