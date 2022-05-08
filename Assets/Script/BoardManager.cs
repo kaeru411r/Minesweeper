@@ -45,19 +45,17 @@ public class BoardManager : MonoBehaviour
         SetField();
     }
 
+    int count = 0;
     void Log()
     {
+        Debug.Log($"Disp{++count}");
         Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                if (_field[i, k].Bomb)
-                {
-                    sb.Append("●");
-                }
-                else if (_field[i, k].State == SellState.Nomal)
+                if (_field[i, k].State == SellState.Nomal)
                 {
                     sb.Append("■");
                 }
@@ -129,6 +127,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>指定座標がエリア内かどうか</returns>
     public bool SetUp(int row, int col)
     {
+        count = 0;
         _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
         SetField();
 
@@ -180,9 +179,9 @@ public class BoardManager : MonoBehaviour
     /// <returns>指定座標がエリア内か否か</returns>
     bool EreaCheck(int row, int col)
     {
-        if(EreaCheck(row, col))
+        if (row >= 0 && row < _field.GetLength(0) && col >= 0 && col < _field.GetLength(1))
         {
-            if(_field[row, col].State != SellState.Null)
+            if (_field[row, col].State != SellState.Null)
             {
                 return true;
             }
@@ -274,33 +273,51 @@ public class BoardManager : MonoBehaviour
     /// <summary>
     /// 指定したセルを掘る
     /// </summary>
-    /// <param name="r"></param>
-    /// <param name="c"></param>
-    public void Dig(int r, int c)
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    public void Dig(int row, int col)
     {
-        if (EreaCheck(r, c))
+        Debug.Log("dig");
+        if (EreaCheck(row, col))
         {
-            if (_field[r, c].State == SellState.Nomal)
+            Debug.Log($"{row} {col}");
+            if (_field[row, col].State == SellState.Nomal)
             {
-                if (_field[r, c].Bomb)
+                if (_field[row, col].Bomb)
                 {
                     Explosion();
                 }
-                else if (_field[r, c].Number == 0)
+                else if (_field[row, col].Number == 0)
                 {
-                    _field[r, c].State = SellState.Dug;
-                    for (int i = r - 1; i <= r + 1; i++)
-                    {
-                        for (int l = c - 1; l <= c + 1; l++)
-                        {
-                            Dig(i, l);
-                        }
-                    }
+                    _field[row, col].State = SellState.Dug;
+                    AroundDig(row, col);
                 }
                 else
                 {
-                    _field[r, c].State = SellState.Dug;
-                    CallOnUpdate();
+                    _field[row, col].State = SellState.Dug;
+                }
+            }
+            CallOnUpdate();
+        }
+    }
+
+    /// <summary>
+    /// 指定セルの周囲を掘る
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    void AroundDig(int row, int col)
+    {
+        for (int i = row - 1; i <= row + 1; i++)
+        {
+            for (int k = col - 1; k <= col + 1; k++)
+            {
+                if (EreaCheck(i, k))
+                {
+                    if (Field[i, k].State == SellState.Nomal)
+                    {
+                        Dig(i, k);
+                    }
                 }
             }
         }
@@ -315,6 +332,7 @@ public class BoardManager : MonoBehaviour
     {
         if (EreaCheck(r, c))
         {
+            Debug.Log(1);
             if (_field[r, c].State == SellState.Flag)
             {
                 _field[r, c].State = SellState.Nomal;
