@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Text;
+using System.Linq;
 
 /// <summary>
 /// ゲームボードの管理をするクラス
@@ -11,23 +12,22 @@ public class BoardManager : MonoBehaviour
 {
     [Tooltip("爆弾の数")]
     [SerializeField] int _bomb;
-    [Tooltip("行数")]
-    [SerializeField] int _row;
-    [Tooltip("列数")]
-    [SerializeField] int _col;
+    [SerializeField] Block[] _fieldSettings;
 
     /// <summary>ボード全体のSellを格納</summary>
     Sell[,] _field;
+    /// <summary>ボードのサイズ</summary>
+    Vector2Int _fieldSize;
 
 
     /// <summary>ボード全体のSellを格納</summary>
-    public Sell[,] Field 
+    public Sell[,] Field
     {
         get
         {
-            if(_field == null)
+            if (_field == null)
             {
-                SetField(_row, _col);
+                SetField(_fieldSettings);
             }
             return _field;
         }
@@ -49,15 +49,15 @@ public class BoardManager : MonoBehaviour
     void Log()
     {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < _row; i++)
+        for (int i = 0; i < _fieldSize.y; i++)
         {
-            for (int l = 0, m = _col; l < m; l++)
+            for (int l = 0, m = _fieldSize.x; l < m; l++)
             {
                 if (_field[i, l].State == SellState.Nomal)
                 {
                     sb.Append("〇");
                 }
-                else if(_field[i, l].State == SellState.Dug)
+                else if (_field[i, l].State == SellState.Dug)
                 {
                     if (_field[i, l].Number != 0)
                     {
@@ -72,6 +72,10 @@ public class BoardManager : MonoBehaviour
                 {
                     sb.Append("Ｆ");
                 }
+                else if (_field[i, l].State == SellState.Null)
+                {
+                    sb.Append("　");
+                }
             }
             sb.AppendLine();
         }
@@ -80,15 +84,15 @@ public class BoardManager : MonoBehaviour
 
     public void SetUp()
     {
-        _bomb = _bomb <= _row * _col ? _bomb : _row * _col;
-        SetField(_row, _col);
+        _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
+        SetField(_fieldSettings);
         int failure = 0;
-        int failureLimit = _row * _col * 2;
+        int failureLimit = _fieldSize.y * _fieldSize.x * 2;
 
         for (int i = 0; i < _bomb; i++)
         {
-            int r = UnityEngine.Random.Range(0, _row - 1);
-            int c = UnityEngine.Random.Range(0, _col - 1);
+            int r = UnityEngine.Random.Range(0, _fieldSize.y - 1);
+            int c = UnityEngine.Random.Range(0, _fieldSize.x - 1);
             //爆弾の配置予定箇所に爆弾があったら
             if (_field[r, c].Bomb)
             {
@@ -114,15 +118,15 @@ public class BoardManager : MonoBehaviour
 
     public void SetUp(int row, int col)
     {
-        _bomb = _bomb <= _row * _col ? _bomb : _row * _col;
-        SetField(_row, _col);
+        _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
+        SetField(_fieldSettings);
         int failure = 0;
-        int failureLimit = _row * _col * 2;
+        int failureLimit = _fieldSize.y * _fieldSize.x * 2;
 
         for (int i = 0; i < _bomb; i++)
         {
-            int r = UnityEngine.Random.Range(0, _row);
-            int c = UnityEngine.Random.Range(0, _col);
+            int r = UnityEngine.Random.Range(0, _fieldSize.y);
+            int c = UnityEngine.Random.Range(0, _fieldSize.x);
             Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
             //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
             if (_field[r, c].Bomb || Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1)
@@ -164,15 +168,45 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    void SetField(int row, int col)
+    void SetField(Block[] fs)
     {
-        _field = new Sell[row, col];
+        List<int[]> x = new List<int[]>();
+        x.Add(new int[] { fs[0].Col + fs[0].Origin.x, fs[0].Origin.x });
+        List<int[]> y = new List<int[]>();
+        y.Add(new int[] { fs[0].Row + fs[0].Origin.y, fs[0].Origin.y });
+        Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
+        Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
+        for (int i = 1; i < fs.Length; i++)
+        {
+            x.Add( new int[] { fs[i].Col + fs[i].Origin.x, fs[i].Origin.x });
+            y.Add( new int[] { fs[i].Row + fs[i].Origin.y, fs[i].Origin.y });
+            if (x[i].Min() < min.x || x[i].Max() > max.x || y[i].Min() < min.y || y[i].Max() > max.y)
+            {
+                min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
+                max = new Vector2Int(Mathf.Max(x[i].Max(), max.x), Mathf.Max(y[i].Max(), max.y));
+            }
+        }
+
+        _field = new Sell[max.y - min.y, max.x - min.x];
+        _fieldSize = new Vector2Int(max.y - min.y, max.x - min.x);
 
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
                 _field[i, k] = new Sell();
+            }
+        }
+        Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
+        foreach (var b in fs)
+        {
+            for (int i = b.Origin.x + min.y; i <= b.Origin.x + b.Row - min.y - 1; i++)
+            {
+                for (int k = b.Origin.y + min.x; k <= b.Origin.y + b.Col - min.x - 1; k++)
+                {
+                    Debug.Log($"{i}, {k}");
+                    _field[i, k].State = SellState.Nomal;
+                }
             }
         }
     }
@@ -185,7 +219,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="c"></param>
     public void Dig(int r, int c)
     {
-        if (r >= 0 && r < _row && c >= 0 && c < _col)
+        if (r >= 0 && r < _fieldSize.y && c >= 0 && c < _fieldSize.x)
         {
             if (_field[r, c].State == SellState.Nomal)
             {
@@ -293,7 +327,7 @@ public class Sell
     public Sell()
     {
         number = 0;
-        state = SellState.Nomal;
+        state = SellState.Null;
         bomb = false;
     }
 
@@ -303,7 +337,16 @@ public class Sell
     }
 }
 
-
+[Serializable]
+public struct Block
+{
+    /// <summary>原点</summary>
+    public Vector2Int Origin;
+    /// <summary>行数</summary>
+    public int Row;
+    /// <summary>列数</summary>
+    public int Col;
+}
 
 /// <summary>
 /// マスの状態
@@ -316,4 +359,6 @@ public enum SellState
     Dug,
     /// <summary>旗を立てた</summary>
     Flag,
+    /// <summary>無効なセル</summary>
+    Null,
 }

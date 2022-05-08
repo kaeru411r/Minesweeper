@@ -376,6 +376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _row: 0
   _col: 0
+  _boardManager: {fileID: 1540425027}
 --- !u!114 &1108519803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,8 +491,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bomb: 20
-  _row: 10
-  _col: 10
+  _fieldSettings:
+  - Origin: {x: 0, y: 0}
+    Row: 10
+    Col: 2
+  - Origin: {x: 0, y: 0}
+    Row: 2
+    Col: 10
+  - Origin: {x: 10, y: 10}
+    Row: -2
+    Col: -10
+  - Origin: {x: 10, y: 10}
+    Row: -2
+    Col: -10
 --- !u!4 &1540425028
 Transform:
   m_ObjectHideFlags: 0
@@ -519,6 +531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a44afba743e2b44853317a74b6fb58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _boardManager: {fileID: 1540425027}
 --- !u!114 &1540425030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -535,6 +548,8 @@ MonoBehaviour:
   _col: 0
   _dig: 0
   _flag: 0
+  _boardManager: {fileID: 1540425027}
+  _gameManager: {fileID: 1540425029}
 --- !u!1 &1976098260
 GameObject:
   m_ObjectHideFlags: 0
