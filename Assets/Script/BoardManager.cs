@@ -180,7 +180,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>指定座標がエリア内か否か</returns>
     bool EreaCheck(int row, int col)
     {
-        if(row >= 0 && row < _field.GetLength(0) && col >= 0 && col < _field.GetLength(1))
+        if(EreaCheck(row, col))
         {
             if(_field[row, col].State != SellState.Null)
             {
@@ -247,6 +247,7 @@ public class BoardManager : MonoBehaviour
         //fieldのサイズを決定し、配列を用意
         _field = new Sell[max.y - min.y + 1, max.x - min.x + 1];
 
+        //配列内の各要素をインスタンス化
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
@@ -256,6 +257,7 @@ public class BoardManager : MonoBehaviour
             }
         }
 
+        //エリアに指定されているマスをNomalに
         for (int i = 0; i < _fieldSettings.Length; i++)
         {
             for (int k = x[i].Min() - min.y; k <= x[i].Max() - min.y; k++)
@@ -276,7 +278,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="c"></param>
     public void Dig(int r, int c)
     {
-        if (r >= 0 && r < _field.GetLength(0) && c >= 0 && c < _field.GetLength(1))
+        if (EreaCheck(r, c))
         {
             if (_field[r, c].State == SellState.Nomal)
             {
