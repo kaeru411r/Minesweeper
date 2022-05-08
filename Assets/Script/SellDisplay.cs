@@ -7,6 +7,7 @@ public class SellDisplay : MonoBehaviour
 {
     [SerializeField] int _row;
     [SerializeField] int _col;
+    [SerializeField] BoardManager _boardManager;
     Sell _sell;
     TextMeshProUGUI _text;
 
@@ -15,8 +16,8 @@ public class SellDisplay : MonoBehaviour
     void Start()
     {
         _text = GetComponentInChildren<TextMeshProUGUI>();
-        _sell = BoardManager.Instance.Field[_row, _col];
-        BoardManager.Instance.OnUpdate += Transcription;
+        _sell = _boardManager.Field[_row, _col];
+        _boardManager.OnUpdate += Transcription;
     }
 
 

@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : SingletonMonoBehaviour<GameManager>
+public class GameManager : MonoBehaviour
 {
+    [SerializeField] BoardManager _boardManager;
     /// <summary>ÉQÅ[ÉÄÇÃêiçsèÛë‘</summary>
     bool _isPlay = false;
 
@@ -12,8 +13,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     private void Start()
     {
-        BoardManager.Instance.OnExplosion += Explosion;
-        BoardManager.Instance.SetUp();
+        _boardManager.OnExplosion += Explosion;
+        _boardManager.SetUp();
     }
 
     /// <summary>
@@ -24,13 +25,13 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void GameStart(int row, int col)
     {
         _isPlay = true;
-        BoardManager.Instance.SetUp(row, col);
-        BoardManager.Instance.Dig(row, col);
+        _boardManager.SetUp(row, col);
+        _boardManager.Dig(row, col);
     }
 
     public void Explosion()
     {
         _isPlay = false;
-        BoardManager.Instance.SetUp();
+        _boardManager.SetUp();
     }
 }

@@ -8,24 +8,26 @@ public class TestController : MonoBehaviour
     [SerializeField] int _col;
     [SerializeField] bool _dig = false;
     [SerializeField] bool _flag = false;
+    [SerializeField] BoardManager _boardManager;
+    [SerializeField] GameManager _gameManager;
     private void Update()
     {
         if (_dig)
         {
-            if (GameManager.Instance.IsPlay)
+            if (_gameManager.IsPlay)
             {
-                BoardManager.Instance.Dig(_row, _col);
+                _boardManager.Dig(_row, _col);
             }
             else
             {
-                GameManager.Instance.GameStart(_row, _col);
+                _gameManager.GameStart(_row, _col);
             }
             _dig = false;
         }
         if (_flag)
         {
             _flag = false;
-            BoardManager.Instance.Flag(_row, _col);
+            _boardManager.Flag(_row, _col);
         }
     }
 }
