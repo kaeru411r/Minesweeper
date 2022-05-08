@@ -48,8 +48,6 @@ public class BoardManager : MonoBehaviour
     int count = 0;
     void Log()
     {
-        Debug.Log($"Disp{++count}");
-        Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < _field.GetLength(0); i++)
         {
@@ -141,7 +139,6 @@ public class BoardManager : MonoBehaviour
             {
                 int r = UnityEngine.Random.Range(0, _field.GetLength(0));
                 int c = UnityEngine.Random.Range(0, _field.GetLength(1));
-                Debug.Log($"{r}, {row}, {Mathf.Abs(r - row) <= 1}, {c}, {col}, {Mathf.Abs(c - col) <= 1}");
                 //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
                 if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
                 {
@@ -198,7 +195,6 @@ public class BoardManager : MonoBehaviour
     /// <returns>設置の成否</returns>
     bool BombSet(int row, int col)
     {
-        Debug.Log($"{row}, {col}, {_field[row, col]}");
         if (!(_field[row, col].Bomb || _field[row, col].State == SellState.Null))
         {
             _field[row, col].Bomb = true;
@@ -251,7 +247,6 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                Debug.Log($"{i}, {k}");
                 _field[i, k] = new Sell();
             }
         }
@@ -277,10 +272,8 @@ public class BoardManager : MonoBehaviour
     /// <param name="col"></param>
     public void Dig(int row, int col)
     {
-        Debug.Log("dig");
         if (EreaCheck(row, col))
         {
-            Debug.Log($"{row} {col}");
             if (_field[row, col].State == SellState.Nomal)
             {
                 if (_field[row, col].Bomb)
@@ -332,7 +325,6 @@ public class BoardManager : MonoBehaviour
     {
         if (EreaCheck(r, c))
         {
-            Debug.Log(1);
             if (_field[r, c].State == SellState.Flag)
             {
                 _field[r, c].State = SellState.Nomal;
