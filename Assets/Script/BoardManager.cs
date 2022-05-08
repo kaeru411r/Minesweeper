@@ -27,7 +27,7 @@ public class BoardManager : MonoBehaviour
         {
             if (_field == null)
             {
-                SetField(_fieldSettings);
+                SetField();
             }
             return _field;
         }
@@ -44,6 +44,7 @@ public class BoardManager : MonoBehaviour
     void Start()
     {
         OnUpdate += Log;
+        SetField();
     }
 
     void Log()
@@ -92,7 +93,7 @@ public class BoardManager : MonoBehaviour
     public void SetUp()
     {
         _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
-        SetField(_fieldSettings);
+        SetField();
         int failure = 0;
         int failureLimit = _fieldSize.y * _fieldSize.x * 2;
 
@@ -130,9 +131,9 @@ public class BoardManager : MonoBehaviour
     public bool SetUp(int row, int col)
     {
         _bomb = _bomb <= _fieldSize.y * _fieldSize.x ? _bomb : _fieldSize.y * _fieldSize.x;
-        SetField(_fieldSettings);
+        SetField();
 
-        if (row >= 0 && row <= _fieldSize.y && col >= 0 && col <= _fieldSize.x)
+        if (EreaCheck(row, col))
         {
 
             int failure = 0;
@@ -173,6 +174,25 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 指定座標がエリア内か否かを返す
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns>指定座標がエリア内か否か</returns>
+    bool EreaCheck(int row, int col)
+    {
+        if(row >= 0 && row <= _fieldSize.y && col >= 0 && col <= _fieldSize.x)
+        {
+            if(_field[row, col].State != SellState.Null)
+            {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// 爆弾の設置を試みる
     /// </summary>
     /// <param name="row"></param>
@@ -201,18 +221,18 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    void SetField(Block[] fs)
+    public void SetField()
     {
         List<int[]> x = new List<int[]>();
-        x.Add(new int[] { fs[0].Col + fs[0].Origin.x, fs[0].Origin.x });
+        x.Add(new int[] { _fieldSettings[0].Col + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
         List<int[]> y = new List<int[]>();
-        y.Add(new int[] { fs[0].Row + fs[0].Origin.y, fs[0].Origin.y });
+        y.Add(new int[] { _fieldSettings[0].Row + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
         Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
         Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
-        for (int i = 1; i < fs.Length; i++)
+        for (int i = 1; i < _fieldSettings.Length; i++)
         {
-            x.Add(new int[] { fs[i].Col + fs[i].Origin.x, fs[i].Origin.x });
-            y.Add(new int[] { fs[i].Row + fs[i].Origin.y, fs[i].Origin.y });
+            x.Add(new int[] { _fieldSettings[i].Col + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
+            y.Add(new int[] { _fieldSettings[i].Row + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
             if (x[i].Min() < min.x || x[i].Max() > max.x || y[i].Min() < min.y || y[i].Max() > max.y)
             {
                 min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
@@ -231,7 +251,7 @@ public class BoardManager : MonoBehaviour
             }
         }
         Debug.Log($"{_field.GetLength(0)}, {_field.GetLength(1)}");
-        for (int i = 0; i < fs.Length; i++)
+        for (int i = 0; i < _fieldSettings.Length; i++)
         {
             StringBuilder sb = new StringBuilder();
             for (int k = x[i].Min() + min.y; k <= x[i].Max() - min.y - 1; k++)
