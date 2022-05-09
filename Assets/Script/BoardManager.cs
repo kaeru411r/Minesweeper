@@ -12,7 +12,10 @@ public class BoardManager : MonoBehaviour
 {
     [Tooltip("爆弾の数")]
     [SerializeField] int _bomb;
+    [Tooltip("フィールドの配置")]
     [SerializeField] Block[] _fieldSettings;
+    [Tooltip("連鎖的に解放する時の一回の時間")]
+    [SerializeField] float _openTime;
 
     /// <summary>ボード全体のSellを格納</summary>
     Sell[,] _field;
@@ -362,14 +365,16 @@ public class BoardManager : MonoBehaviour
     /// <param name="_openTime"></param>
     /// <param name="sells"></param>
     /// <returns></returns>
-    IEnumerator Diging(float _openTime, List<List<Vector2Int>> sells)
+    IEnumerator ChainDig(List<List<Vector2Int>> sells)
     {
+        _openTime = 0 > _openTime ? 0 : _openTime;
         for (int i = 0; i < sells.Count; i++)
         {
             foreach (var v in sells[i])
             {
                 _field[v.y, v.x].State = SellState.Dug;
             }
+            CallOnUpdate();
             yield return new WaitForSeconds(_openTime);
         }
     }
