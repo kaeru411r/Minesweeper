@@ -215,6 +215,8 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+        CallOnSetUp();
+        CallOnUpdate();
     }   
 
     /// <summary>
@@ -246,6 +248,7 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+        CallOnUpdate();
     }
 
     /// <summary>
@@ -350,6 +353,24 @@ public class BoardManager : MonoBehaviour
                 }
             }
             CallOnUpdate();
+        }
+    }
+
+    /// <summary>
+    /// フィールドを連鎖的に解放していく
+    /// </summary>
+    /// <param name="_openTime"></param>
+    /// <param name="sells"></param>
+    /// <returns></returns>
+    IEnumerator Diging(float _openTime, List<List<Vector2Int>> sells)
+    {
+        for (int i = 0; i < sells.Count; i++)
+        {
+            foreach (var v in sells[i])
+            {
+                _field[v.y, v.x].State = SellState.Dug;
+            }
+            yield return new WaitForSeconds(_openTime);
         }
     }
 
