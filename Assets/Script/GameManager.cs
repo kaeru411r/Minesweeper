@@ -14,7 +14,8 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         _boardManager.OnExplosion += Explosion;
-        _boardManager.SetUp();
+        _boardManager.SetField();
+        _boardManager.MineLaying();
     }
 
     /// <summary>
@@ -24,7 +25,8 @@ public class GameManager : MonoBehaviour
     /// <param name="col"></param>
     public void GameStart(int row, int col)
     {
-        if (_boardManager.SetUp(row, col))
+        _boardManager.SetField();
+        if (_boardManager.MineLaying(row, col))
         {
             _isPlay = true;
             _boardManager.Dig(row, col);
@@ -34,6 +36,6 @@ public class GameManager : MonoBehaviour
     public void Explosion()
     {
         _isPlay = false;
-        _boardManager.SetUp();
+        _boardManager.SetField();
     }
 }

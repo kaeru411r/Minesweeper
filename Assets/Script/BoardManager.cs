@@ -81,17 +81,6 @@ public class BoardManager : MonoBehaviour
         Debug.Log(sb);
     }
 
-    /// <summary>
-    /// フィールドのセットアップ
-    /// </summary>
-    public void SetUp()
-    {
-        _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
-        SetField();
-
-        CallOnSetUp();
-        CallOnUpdate();
-    }
 
     /// <summary>
     /// 指定座標がエリア内か否かを返す
@@ -196,6 +185,7 @@ public class BoardManager : MonoBehaviour
     {
         if (_field != null)
         {
+            _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
             int failure = 0;
             int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
             for (int i = 0; i < _bomb; i++)
@@ -227,9 +217,9 @@ public class BoardManager : MonoBehaviour
     /// <returns></returns>
     public bool MineLaying(int row, int col)
     {
-        if (EreaCheck(row, col))
+        if (EreaCheck(row, col) && _field != null)
         {
-
+            _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
             int failure = 0;
             int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
 
