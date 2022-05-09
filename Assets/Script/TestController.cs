@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class TestController : MonoBehaviour
 {
-    [SerializeField] int _row;
-    [SerializeField] int _col;
+    [SerializeField] Vector2Int _point;
     [SerializeField] bool _dig = false;
     [SerializeField] bool _flag = false;
     [SerializeField] BoardManager _boardManager;
@@ -16,11 +15,11 @@ public class TestController : MonoBehaviour
         {
             if (_gameManager.IsPlay)
             {
-                _boardManager.Dig(_row, _col);
+                _boardManager.Dig(_point);
             }
             else
             {
-                _gameManager.GameStart(_row, _col);
+                _gameManager.GameStart(_point);
             }
             _dig = false;
             Debug.Log(_gameManager.IsPlay);
@@ -28,7 +27,7 @@ public class TestController : MonoBehaviour
         if (_flag)
         {
             _flag = false;
-            _boardManager.Flag(_row, _col);
+            _boardManager.Flag(_point);
         }
     }
 }
