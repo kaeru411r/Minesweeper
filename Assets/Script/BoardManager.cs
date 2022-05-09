@@ -397,6 +397,26 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Žw’è‚µ‚½ƒZƒ‹‚ÉŠø‚ð—§‚Ä‚é
+    /// </summary>
+    /// <param name="point"></param>
+    public void Flag(Vector2Int point)
+    {
+        if (EreaCheck(point))
+        {
+            if (_field[point.y, point.x].State == SellState.Flag)
+            {
+                _field[point.y, point.x].State = SellState.Nomal;
+            }
+            else if (_field[point.y, point.x].State == SellState.Nomal)
+            {
+                _field[point.y, point.x].State = SellState.Flag;
+            }
+            CallOnUpdate();
+        }
+    }
+
+    /// <summary>
     /// ”š”­
     /// </summary>
     void Explosion()
