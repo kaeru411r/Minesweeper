@@ -45,7 +45,6 @@ public class BoardManager : MonoBehaviour
         SetField();
     }
 
-    int count = 0;
     void Log()
     {
         StringBuilder sb = new StringBuilder();
@@ -89,83 +88,9 @@ public class BoardManager : MonoBehaviour
     {
         _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
         SetField();
-        int failure = 0;
-        int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
-
-        for (int i = 0; i < _bomb; i++)
-        {
-            int r = UnityEngine.Random.Range(0, _field.GetLength(0));
-            int c = UnityEngine.Random.Range(0, _field.GetLength(1));
-            //爆弾の配置予定箇所に爆弾があったら
-            if (!BombSet(r, c))
-            {
-                i--;
-                failure++;
-            }
-
-            if (failure > failureLimit)
-            {
-                failure = 0;
-                Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
-                _bomb--;
-            }
-        }
 
         CallOnSetUp();
         CallOnUpdate();
-    }
-
-    /// <summary>
-    /// フィールドのセットアップ
-    /// 指定した座標の周囲1マス以外に爆弾を指定数設置する
-    /// 指定箇所がエリア外ならフィールドのセットアップのみをしてfalseを返す
-    /// </summary>
-    /// <param name="row"></param>
-    /// <param name="col"></param>
-    /// <returns>指定座標がエリア内かどうか</returns>
-    public bool SetUp(int row, int col)
-    {
-        count = 0;
-        _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
-        SetField();
-
-        if (EreaCheck(row, col))
-        {
-
-            int failure = 0;
-            int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
-
-            for (int i = 0; i < _bomb; i++)
-            {
-                int r = UnityEngine.Random.Range(0, _field.GetLength(0));
-                int c = UnityEngine.Random.Range(0, _field.GetLength(1));
-                //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
-                if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
-                {
-                    i--;
-                    failure++;
-                }
-                else
-                {
-                    if (!BombSet(r, c))
-                    {
-                        i--;
-                        failure++;
-                    }
-                }
-
-                if (failure > failureLimit)
-                {
-                    failure = 0;
-                    Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
-                    _bomb--;
-                }
-            }
-            CallOnSetUp();
-            CallOnUpdate();
-            return true;
-        }
-        return false;
     }
 
     /// <summary>
@@ -262,6 +187,83 @@ public class BoardManager : MonoBehaviour
                 }
             }
         }
+    }   
+
+    /// <summary>
+    /// 地雷敷設
+    /// </summary>
+    public void MineLaying()
+    {
+        if (_field != null)
+        {
+            int failure = 0;
+            int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
+            for (int i = 0; i < _bomb; i++)
+            {
+                int r = UnityEngine.Random.Range(0, _field.GetLength(0));
+                int c = UnityEngine.Random.Range(0, _field.GetLength(1));
+                //爆弾の配置予定箇所に爆弾があったら
+                if (!BombSet(r, c))
+                {
+                    i--;
+                    failure++;
+                }
+
+                if (failure > failureLimit)
+                {
+                    failure = 0;
+                    Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
+                    _bomb--;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 指定せる及びその周囲1マスを除くフィールドに地雷を敷設する
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    /// <returns></returns>
+    public bool MineLaying(int row, int col)
+    {
+        if (EreaCheck(row, col))
+        {
+
+            int failure = 0;
+            int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
+
+            for (int i = 0; i < _bomb; i++)
+            {
+                int r = UnityEngine.Random.Range(0, _field.GetLength(0));
+                int c = UnityEngine.Random.Range(0, _field.GetLength(1));
+                //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
+                if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
+                {
+                    i--;
+                    failure++;
+                }
+                else
+                {
+                    if (!BombSet(r, c))
+                    {
+                        i--;
+                        failure++;
+                    }
+                }
+
+                if (failure > failureLimit)
+                {
+                    failure = 0;
+                    Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
+                    _bomb--;
+                }
+            }
+            CallOnSetUp();
+            CallOnUpdate();
+            return true;
+        }
+        return false;
     }
 
 
