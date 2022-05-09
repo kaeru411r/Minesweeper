@@ -23,13 +23,14 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    public void GameStart(int row, int col)
+    public void GameStart(Vector2Int point)
     {
         _boardManager.SetField();
-        if (_boardManager.MineLaying(row, col))
+        if (_boardManager.MineLaying(point))
         {
             _isPlay = true;
-            _boardManager.Dig(row, col);
+            _boardManager.Dig(point)
+;
         }
     }
 

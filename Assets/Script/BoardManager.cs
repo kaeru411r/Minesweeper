@@ -85,6 +85,24 @@ public class BoardManager : MonoBehaviour
     /// <summary>
     /// 指定座標がエリア内か否かを返す
     /// </summary>
+    /// <param name="point"></param>
+    /// <returns>指定座標がエリア内か否か</returns>
+    bool EreaCheck(Vector2Int point)
+    {
+        if (point.y >= 0 && point.y < _field.GetLength(0) && point.x >= 0 && point.x < _field.GetLength(1))
+        {
+            if (_field[point.y, point.x].State != SellState.Null)
+            {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 指定座標がエリア内か否かを返す
+    /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns>指定座標がエリア内か否か</returns>
@@ -126,18 +144,39 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// _field配列をrow*colで初期化
+    /// 爆弾の設置を試みる
     /// </summary>
-    /// <param name="row"></param>
-    /// <param name="col"></param>
+    /// <param name="point"></param>
+    /// <returns>設置の成否</returns>
+    bool BombSet(Vector2Int point)
+    {
+        if (!(_field[point.y, point.x].Bomb || _field[point.y, point.x].State == SellState.Null))
+        {
+            _field[point.y, point.x].Bomb = true;
+            //爆弾の周囲のマスの爆弾数＋１
+            for (int i = point.y - 1 >= 0 ? point.y - 1 : 0; i < _field.GetLength(0) && i <= point.y + 1; i++)
+            {
+                for (int k = point.x - 1 >= 0 ? point.x - 1 : 0; k < _field.GetLength(1) && k <= point.x + 1; k++)
+                {
+                    _field[i, k].Number++;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// _field配列を_fieldSettingsに合わせて初期化
+    /// </summary>
     public void SetField()
     {
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
-        x.Add(new int[] { _fieldSettings[0].Col + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
+        x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
         //yの両端を格納する配列のリスト
         List<int[]> y = new List<int[]>();
-        y.Add(new int[] { _fieldSettings[0].Row + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
+        y.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
         //xとyそれぞれの最小値
         Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
         //xとyそれぞれの最大値
@@ -145,8 +184,8 @@ public class BoardManager : MonoBehaviour
         //xとyそれぞれの最小、最大値を決める
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
-            x.Add(new int[] { _fieldSettings[i].Col + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
-            y.Add(new int[] { _fieldSettings[i].Row + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
+            x.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
+            y.Add(new int[] { _fieldSettings[i].Area.y + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
             if (x[i].Min() < min.x || x[i].Max() > max.x || y[i].Min() < min.y || y[i].Max() > max.y)
             {
                 min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
@@ -210,14 +249,14 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 指定せる及びその周囲1マスを除くフィールドに地雷を敷設する
+    /// 指定セル及びその周囲1マスを除くフィールドに地雷を敷設する
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
     /// <returns></returns>
-    public bool MineLaying(int row, int col)
+    public bool MineLaying(Vector2Int area)
     {
-        if (EreaCheck(row, col) && _field != null)
+        if (EreaCheck(area) && _field != null)
         {
             _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
             int failure = 0;
@@ -228,7 +267,7 @@ public class BoardManager : MonoBehaviour
                 int r = UnityEngine.Random.Range(0, _field.GetLength(0));
                 int c = UnityEngine.Random.Range(0, _field.GetLength(1));
                 //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
-                if ((Mathf.Abs(r - row) <= 1 && Mathf.Abs(c - col) <= 1))
+                if ((Mathf.Abs(r - area.y) <= 1 && Mathf.Abs(c - area.x) <= 1))
                 {
                     i--;
                     failure++;
@@ -257,6 +296,34 @@ public class BoardManager : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// 指定したセルを掘る
+    /// </summary>
+    /// <param name="row"></param>
+    /// <param name="col"></param>
+    public void Dig(Vector2Int point)
+    {
+        if (EreaCheck(point))
+        {
+            if (_field[point.y, point.x].State == SellState.Nomal)
+            {
+                if (_field[point.y, point.x].Bomb)
+                {
+                    Explosion();
+                }
+                else if (_field[point.y, point.x].Number == 0)
+                {
+                    _field[point.y, point.x].State = SellState.Dug;
+                    AroundDig(point.y, point.x);
+                }
+                else
+                {
+                    _field[point.y, point.x].State = SellState.Dug;
+                }
+            }
+            CallOnUpdate();
+        }
+    }
     /// <summary>
     /// 指定したセルを掘る
     /// </summary>
@@ -297,7 +364,7 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = col - 1; k <= col + 1; k++)
             {
-                if (EreaCheck(i, k))
+                if (EreaCheck(new Vector2Int( i, k)))
                 {
                     if (Field[i, k].State == SellState.Nomal)
                     {
@@ -406,10 +473,8 @@ public struct Block
 {
     /// <summary>原点</summary>
     public Vector2Int Origin;
-    /// <summary>行数</summary>
-    public int Row;
-    /// <summary>列数</summary>
-    public int Col;
+    /// <summary>領域の広さ</summary>
+    public Vector2Int Area;
 }
 
 /// <summary>
