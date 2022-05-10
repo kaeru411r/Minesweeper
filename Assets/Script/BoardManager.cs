@@ -103,15 +103,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>éwíËç¿ïWÇ™ÉGÉäÉAì‡Ç©î€Ç©</returns>
     bool EreaCheck(Vector2Int point)
     {
-        if (point.y >= 0 && point.y < _field.GetLength(0) && point.x >= 0 && point.x < _field.GetLength(1))
-        {
-            if (_field[point.y, point.x].State != SellState.Null)
-            {
-                return true;
-            }
-            return false;
-        }
-        return false;
+        return EreaCheck(point.y, point.x);
     }
 
     /// <summary>
@@ -164,20 +156,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>ê›íuÇÃê¨î€</returns>
     bool BombSet(Vector2Int point)
     {
-        if (!(_field[point.y, point.x].Bomb || _field[point.y, point.x].State == SellState.Null))
-        {
-            _field[point.y, point.x].Bomb = true;
-            //îöíeÇÃé¸àÕÇÃÉ}ÉXÇÃîöíeêîÅ{ÇP
-            for (int i = point.y - 1 >= 0 ? point.y - 1 : 0; i < _field.GetLength(0) && i <= point.y + 1; i++)
-            {
-                for (int k = point.x - 1 >= 0 ? point.x - 1 : 0; k < _field.GetLength(1) && k <= point.x + 1; k++)
-                {
-                    _field[i, k].Number++;
-                }
-            }
-            return true;
-        }
-        return false;
+        return BombSet(point.y, point.x);
     }
 
     /// <summary>
@@ -352,26 +331,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="col"></param>
     public void Dig(int row, int col)
     {
-        if (EreaCheck(row, col))
-        {
-            if (_field[row, col].State == SellState.Nomal)
-            {
-                if (_field[row, col].Bomb)
-                {
-                    Explosion();
-                }
-                else if (_field[row, col].Number == 0)
-                {
-                    _field[row, col].State = SellState.Dug;
-                    AroundDig(row, col);
-                }
-                else
-                {
-                    _field[row, col].State = SellState.Dug;
-                }
-            }
-            CallOnUpdate();
-        }
+        Dig(new Vector2Int(col, row));
     }
 
     void DigErea(List<List<Vector2Int>> sells, Vector2Int point)
@@ -440,7 +400,7 @@ public class BoardManager : MonoBehaviour
                 {
                     if (Field[i, k].State == SellState.Nomal)
                     {
-                        Dig(i, k);
+
                     }
                 }
             }
@@ -474,18 +434,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="point"></param>
     public void Flag(Vector2Int point)
     {
-        if (EreaCheck(point))
-        {
-            if (_field[point.y, point.x].State == SellState.Flag)
-            {
-                _field[point.y, point.x].State = SellState.Nomal;
-            }
-            else if (_field[point.y, point.x].State == SellState.Nomal)
-            {
-                _field[point.y, point.x].State = SellState.Flag;
-            }
-            CallOnUpdate();
-        }
+        Flag(point.y, point.x);
     }
 
     /// <summary>
