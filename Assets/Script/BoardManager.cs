@@ -46,6 +46,17 @@ public class BoardManager : MonoBehaviour
     {
         OnUpdate += Log;
         SetField();
+
+        List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
+        for (int i = 0; i < 10; i++)
+        {
+            sells.Add(new List<Vector2Int>());
+            for (int k = 0; k < 10; k++)
+            {
+                sells[i].Add(new Vector2Int(i, k));
+            }
+        }
+        StartCoroutine(ChainDig(sells));
     }
 
     void Log()
@@ -220,7 +231,7 @@ public class BoardManager : MonoBehaviour
         }
         CallOnSetUp();
         CallOnUpdate();
-    }   
+    }
 
     /// <summary>
     /// 地雷敷設
@@ -313,21 +324,25 @@ public class BoardManager : MonoBehaviour
         {
             if (_field[point.y, point.x].State == SellState.Nomal)
             {
+                List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
                 if (_field[point.y, point.x].Bomb)
                 {
                     Explosion();
+                    return;
                 }
                 else if (_field[point.y, point.x].Number == 0)
                 {
-                    _field[point.y, point.x].State = SellState.Dug;
+                    sells.Add(new List<Vector2Int>());
+                    sells[0].Add(point);
                     AroundDig(point.y, point.x);
                 }
                 else
                 {
-                    _field[point.y, point.x].State = SellState.Dug;
+                    sells.Add(new List<Vector2Int>());
+                    sells[0].Add(point);
                 }
+                ChainDig(sells);
             }
-            CallOnUpdate();
         }
     }
     /// <summary>
@@ -359,6 +374,16 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    void DigErea(List<List<Vector2Int>> sells, Vector2Int point)
+    {
+        if (EreaCheck(point))
+        {
+            var o = sells[0][0];
+            int d = (point.x - o.x) + (point.y + o.y);
+            sells[d].Add(point);
+        }
+    }
+
     /// <summary>
     /// フィールドを連鎖的に解放していく
     /// </summary>
@@ -368,14 +393,44 @@ public class BoardManager : MonoBehaviour
     IEnumerator ChainDig(List<List<Vector2Int>> sells)
     {
         _openTime = 0 > _openTime ? 0 : _openTime;
-        for (int i = 0; i < sells.Count; i++)
+        int i = 0;
+        float time = 0;
+
+        if (_openTime > 0)
         {
-            foreach (var v in sells[i])
+            for (; i < sells.Count;)
             {
-                _field[v.y, v.x].State = SellState.Dug;
+                Debug.Log($"{i}, {sells.Count}");
+                StringBuilder sb = new StringBuilder();
+                for (int k = i; k <= time; k++)
+                {
+                    foreach (var v in sells[k])
+                    {
+                        sb.Append(v);
+                        _field[v.y, v.x].State = SellState.Dug;
+                    }
+                    sb.AppendLine();
+                }
+                Debug.Log(sb);
+                i = (int)time;
+                CallOnUpdate();
+                time += Time.deltaTime;
+                yield return null;
             }
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var v in sells)
+            {
+                foreach (Vector2Int v2 in v)
+                {
+                    sb.Append(v2);
+                }
+                sb.AppendLine();
+            }
+            Debug.Log(sb);
             CallOnUpdate();
-            yield return new WaitForSeconds(_openTime);
         }
     }
 
@@ -390,7 +445,7 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = col - 1; k <= col + 1; k++)
             {
-                if (EreaCheck(new Vector2Int( i, k)))
+                if (EreaCheck(i, k))
                 {
                     if (Field[i, k].State == SellState.Nomal)
                     {
@@ -534,6 +589,8 @@ public enum SellState
     Dug,
     /// <summary>旗を立てた</summary>
     Flag,
+    /// <summary>掘る予定</summary>
+    WillDig,
     /// <summary>無効なセル</summary>
     Null,
 }

@@ -492,12 +492,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _bomb: 20
   _fieldSettings:
-  - Origin: {x: -2, y: -2}
-    Row: -1
-    Col: -1
-  - Origin: {x: 2, y: 2}
-    Row: 1
-    Col: 1
+  - Origin: {x: 0, y: 0}
+    Area: {x: 10, y: 10}
+  _openTime: 0.02
 --- !u!4 &1540425028
 Transform:
   m_ObjectHideFlags: 0
@@ -538,8 +535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5058ad78706fa5245ad5eca05becfb9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _row: 0
-  _col: 0
+  _point: {x: 0, y: 0}
   _dig: 0
   _flag: 0
   _boardManager: {fileID: 1540425027}
