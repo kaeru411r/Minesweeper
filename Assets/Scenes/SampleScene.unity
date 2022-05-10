@@ -494,7 +494,7 @@ MonoBehaviour:
   _fieldSettings:
   - Origin: {x: 0, y: 0}
     Area: {x: 10, y: 10}
-  _openTime: 0.02
+  _openTime: -10
 --- !u!4 &1540425028
 Transform:
   m_ObjectHideFlags: 0

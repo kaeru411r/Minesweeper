@@ -398,38 +398,29 @@ public class BoardManager : MonoBehaviour
 
         if (_openTime > 0)
         {
-            for (; i < sells.Count;)
+            for(; i < sells.Count; )
             {
-                Debug.Log($"{i}, {sells.Count}");
-                StringBuilder sb = new StringBuilder();
-                for (int k = i; k <= time; k++)
+                for(; i <= time / _openTime && i < sells.Count; i++)
                 {
-                    foreach (var v in sells[k])
+                    foreach(var v in sells[i])
                     {
-                        sb.Append(v);
                         _field[v.y, v.x].State = SellState.Dug;
                     }
-                    sb.AppendLine();
                 }
-                Debug.Log(sb);
-                i = (int)time;
                 CallOnUpdate();
-                time += Time.deltaTime;
                 yield return null;
+                time += Time.deltaTime;
             }
         }
         else
         {
-            StringBuilder sb = new StringBuilder();
             foreach (var v in sells)
             {
-                foreach (Vector2Int v2 in v)
+                foreach (var v2 in v)
                 {
-                    sb.Append(v2);
+                    _field[v2.y, v2.x].State = SellState.Dug;
                 }
-                sb.AppendLine();
             }
-            Debug.Log(sb);
             CallOnUpdate();
         }
     }
