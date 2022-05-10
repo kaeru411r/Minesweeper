@@ -299,30 +299,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="col"></param>
     public void Dig(Vector2Int point)
     {
-        if (EreaCheck(point))
-        {
-            if (_field[point.y, point.x].State == SellState.Nomal)
-            {
-                List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
-                if (_field[point.y, point.x].Bomb)
-                {
-                    Explosion();
-                    return;
-                }
-                else if (_field[point.y, point.x].Number == 0)
-                {
-                    sells.Add(new List<Vector2Int>());
-                    sells[0].Add(point);
-                    AroundDig(point.y, point.x);
-                }
-                else
-                {
-                    sells.Add(new List<Vector2Int>());
-                    sells[0].Add(point);
-                }
-                ChainDig(sells);
-            }
-        }
+        Dig(point.y, point.x);
     }
     /// <summary>
     /// Žw’è‚µ‚½ƒZƒ‹‚ðŒ@‚é
@@ -331,7 +308,27 @@ public class BoardManager : MonoBehaviour
     /// <param name="col"></param>
     public void Dig(int row, int col)
     {
-        Dig(new Vector2Int(col, row));
+        if (_field[row, col].State == SellState.Nomal)
+        {
+            List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
+            if (_field[row, col].Bomb)
+            {
+                Explosion();
+                return;
+            }
+            else if (_field[row, col].Number == 0)
+            {
+                sells.Add(new List<Vector2Int>());
+                sells[0].Add(new Vector2Int(col, row));
+                AroundDig(row, col);
+            }
+            else
+            {
+                sells.Add(new List<Vector2Int>());
+                sells[0].Add(new Vector2Int(col, row));
+            }
+            ChainDig(sells);
+        }
     }
 
     void DigErea(List<List<Vector2Int>> sells, Vector2Int point)
@@ -358,13 +355,13 @@ public class BoardManager : MonoBehaviour
 
         if (_openTime > 0)
         {
-            for(; i < sells.Count; )
+            for (; i < sells.Count;)
             {
-                for(; i <= time / _openTime && i < sells.Count; i++)
+                for (; i <= time / _openTime && i < sells.Count; i++)
                 {
-                    foreach(var v in sells[i])
+                    foreach (var v in sells[i])
                     {
-                        _field[v.y, v.x].State = SellState.Dug;
+                        _field[v.x, v.y].State = SellState.Dug;
                     }
                 }
                 CallOnUpdate();
@@ -378,7 +375,7 @@ public class BoardManager : MonoBehaviour
             {
                 foreach (var v2 in v)
                 {
-                    _field[v2.y, v2.x].State = SellState.Dug;
+                    _field[v2.x, v2.y].State = SellState.Dug;
                 }
             }
             CallOnUpdate();
