@@ -318,6 +318,7 @@ public class BoardManager : MonoBehaviour
             }
             else if (_field[row, col].Number == 0)
             {
+                _field[row, col].State = SellState.WillDig;
                 sells.Add(new List<Vector2Int>());
                 sells[0].Add(new Vector2Int(col, row));
                 AroundDig(row, col);
@@ -393,12 +394,10 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = col - 1; k <= col + 1; k++)
             {
-                if (EreaCheck(i, k))
+                if (EreaCheck(i, k) && Field[i, k].State == SellState.Nomal)
                 {
-                    if (Field[i, k].State == SellState.Nomal)
-                    {
-
-                    }
+                    _field[i, k].State = SellState.WillDig;
+                    AroundDig(i, k);
                 }
             }
         }
