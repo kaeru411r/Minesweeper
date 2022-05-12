@@ -48,14 +48,7 @@ public class BoardManager : MonoBehaviour
         SetField();
 
         List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
-        for (int i = 0; i < 10; i++)
-        {
-            sells.Add(new List<Vector2Int>());
-            for (int k = 0; k < 10; k++)
-            {
-                sells[i].Add(new Vector2Int(i, k));
-            }
-        }
+        AroundDig(1, 1, sells);
         StartCoroutine(ChainDig(sells));
     }
 
@@ -321,7 +314,7 @@ public class BoardManager : MonoBehaviour
                 _field[row, col].State = SellState.WillDig;
                 sells.Add(new List<Vector2Int>());
                 sells[0].Add(new Vector2Int(col, row));
-                AroundDig(row, col);
+                AroundDig(row, col, sells);
             }
             else
             {
@@ -388,7 +381,7 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    void AroundDig(int row, int col)
+    void AroundDig(int row, int col, List<List<Vector2Int>> sells)
     {
         for (int i = row - 1; i <= row + 1; i++)
         {
@@ -396,8 +389,9 @@ public class BoardManager : MonoBehaviour
             {
                 if (EreaCheck(i, k) && Field[i, k].State == SellState.Nomal)
                 {
+                    Debug.Log($"{i}, {k}");
                     _field[i, k].State = SellState.WillDig;
-                    AroundDig(i, k);
+                    AroundDig(i, k, sells);
                 }
             }
         }
