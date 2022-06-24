@@ -10,19 +10,25 @@ using System.Linq;
 /// </summary>
 public class BoardManager : MonoBehaviour
 {
+    static public BoardManager Instance;
+
     [Tooltip("爆弾の数")]
     [SerializeField] int _bomb;
     [Tooltip("フィールドの配置")]
     [SerializeField] Block[] _fieldSettings;
     [Tooltip("連鎖的に解放する時の一回の時間")]
     [SerializeField] float _openTime;
+    [Tooltip("セルのプレハブ")]
+    [SerializeField] Cell _cellPrefab;
+
+    RectTransform _tr;
 
     /// <summary>ボード全体のSellを格納</summary>
-    Sell[,] _field;
+    Cell[,] _field;
 
 
     /// <summary>ボード全体のSellを格納</summary>
-    public Sell[,] Field
+    public Cell[,] Field
     {
         get
         {
@@ -41,9 +47,15 @@ public class BoardManager : MonoBehaviour
     /// <summary>爆発した時に呼び出し</summary>
     public event Action OnExplosion;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        _tr = GetComponent<RectTransform>();
         OnUpdate += Log;
         SetField();
 
@@ -179,14 +191,15 @@ public class BoardManager : MonoBehaviour
             }
         }
         //fieldのサイズを決定し、配列を用意
-        _field = new Sell[max.y - min.y + 1, max.x - min.x + 1];
+        _field = new Cell[max.y - min.y + 1, max.x - min.x + 1];
 
         //配列内の各要素をインスタンス化
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                _field[i, k] = new Sell();
+                _field[i, k] = Instantiate(_cellPrefab, transform);
+                _field[i, k].SetScale(_tr.sizeDelta.y);
             }
         }
 
@@ -467,35 +480,6 @@ public class BoardManager : MonoBehaviour
         {
             OnExplosion();
         }
-    }
-}
-
-/// <summary>
-/// マスの情報を記録する
-/// </summary>
-public class Sell
-{
-    int number;
-    SellState state;
-    bool bomb;
-
-    /// <summary>/// 周囲１マスの爆弾の数/// </summary>
-    public int Number { get => number; set => number = value; }
-    /// <summary>現在のマスの状態</summary>
-    public SellState State { get => state; set => state = value; }
-    /// <summary>爆弾の有無</summary>
-    public bool Bomb { get => bomb; set => bomb = value; }
-
-    public Sell()
-    {
-        number = 0;
-        state = SellState.Null;
-        bomb = false;
-    }
-
-    public override string ToString()
-    {
-        return $"{{{state}, {number}, {bomb}}}";
     }
 }
 

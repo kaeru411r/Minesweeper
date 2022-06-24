@@ -4,18 +4,24 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] BoardManager _boardManager;
+    static public GameManager Instance;
+
     /// <summary>ゲームの進行状態</summary>
     bool _isPlay = false;
 
     /// <summary>ゲームの進行状態</summary>
     public bool IsPlay { get => _isPlay; }
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
-        _boardManager.OnExplosion += Explosion;
-        _boardManager.SetField();
-        _boardManager.MineLaying();
+        BoardManager.Instance.OnExplosion += Explosion;
+        BoardManager.Instance.SetField();
+        BoardManager.Instance.MineLaying();
     }
 
     /// <summary>
@@ -25,11 +31,11 @@ public class GameManager : MonoBehaviour
     /// <param name="col"></param>
     public void GameStart(Vector2Int point)
     {
-        _boardManager.SetField();
-        if (_boardManager.MineLaying(point))
+        BoardManager.Instance.SetField();
+        if (BoardManager.Instance.MineLaying(point))
         {
             _isPlay = true;
-            _boardManager.Dig(point)
+            BoardManager.Instance.Dig(point)
 ;
         }
     }
@@ -37,6 +43,6 @@ public class GameManager : MonoBehaviour
     public void Explosion()
     {
         _isPlay = false;
-        _boardManager.SetField();
+        BoardManager.Instance.SetField();
     }
 }
