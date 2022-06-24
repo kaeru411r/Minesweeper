@@ -49,7 +49,8 @@ public class Cell : MonoBehaviour
         {
             _tr = GetComponentInChildren<RectTransform>();
         }
-        _tr.rect.Set(_tr.rect.x, _tr.rect.y, size, size);
+        //_tr.rect.Set(_tr.rect.x, _tr.rect.y, size, size);
+        _tr.sizeDelta = new Vector2(size, size);
         _scale = size;
         _text.fontSize = (int)_scale / 10;
     }
@@ -64,13 +65,11 @@ public class Cell : MonoBehaviour
     /// </summary>
     private void Transcription()
     {
-        Debug.Log("1");
         if (_image == null)
         {
             _image = GetComponent<Image>();
         }
         if (_text == null) return;
-        Debug.Log("2");
         if (_state == SellState.Dug)
         {
             _image.color = Color.white;

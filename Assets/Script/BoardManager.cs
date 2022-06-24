@@ -192,23 +192,24 @@ public class BoardManager : MonoBehaviour
         }
         //fieldのサイズを決定し、配列を用意
         _field = new Cell[max.y - min.y + 1, max.x - min.x + 1];
-
+        float spase = _cellPrefab.GetComponent<RectTransform>().rect.height;
         //配列内の各要素をインスタンス化
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                _field[i, k] = Instantiate(_cellPrefab, transform);
-                _field[i, k].SetScale(_tr.sizeDelta.y);
+                float width = _tr.rect.width / 2 + i * spase - _field.GetLength(0) / 2 * spase;
+                float height = _tr.rect.height / 2 + k * spase - _field.GetLength(1) / 2 * spase;
+                _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
             }
         }
 
         //エリアに指定されているマスをNomalに
         for (int i = 0; i < _fieldSettings.Length; i++)
         {
-            for (int k = x[i].Min() - min.y; k <= x[i].Max() - min.y; k++)
+            for (int k = y[i].Min() - min.y; k < y[i].Max() - min.y; k++)
             {
-                for (int m = y[i].Min() - min.x; m <= y[i].Max() - min.x; m++)
+                for (int m = x[i].Min() - min.x; m < x[i].Max() - min.x; m++)
                 {
                     _field[k, m].State = SellState.Nomal;
                 }
