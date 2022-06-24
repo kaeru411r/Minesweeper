@@ -1,10 +1,10 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// ƒZƒ‹‚Ì•\¦‚ğ§Œä‚·‚é
+/// ã‚»ãƒ«ã®è¡¨ç¤ºã‚’åˆ¶å¾¡ã™ã‚‹
 /// </summary>
 [RequireComponent(typeof(Image))]
 public class SellDisplay : MonoBehaviour

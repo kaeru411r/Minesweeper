@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,11 +15,11 @@ public class Cell : MonoBehaviour
     Image _image;
     RectTransform _tr;
 
-    /// <summary>/// üˆÍ‚Pƒ}ƒX‚Ì”š’e‚Ì”/// </summary>
+    /// <summary>/// å‘¨å›²ï¼‘ãƒã‚¹ã®çˆ†å¼¾ã®æ•°/// </summary>
     public int Number { get => _number; set => _number = value; }
-    /// <summary>Œ»İ‚Ìƒ}ƒX‚Ìó‘Ô</summary>
+    /// <summary>ç¾åœ¨ã®ãƒã‚¹ã®çŠ¶æ…‹</summary>
     public SellState State { get => _state; set => _state = value; }
-    /// <summary>”š’e‚Ì—L–³</summary>
+    /// <summary>çˆ†å¼¾ã®æœ‰ç„¡</summary>
     public bool Bomb { get => _bomb; set => _bomb = value; }
     public float Scale { get => _scale; set => _scale = value; }
 
@@ -38,7 +38,7 @@ public class Cell : MonoBehaviour
         _tr = GetComponentInChildren<RectTransform>();
         if (!_text)
         {
-            Debug.LogError("qƒIƒuƒWƒFƒNƒg‚ÉText‚ª•K—v‚Å‚·");
+            Debug.LogError("å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«TextãŒå¿…è¦ã§ã™");
         }
         BoardManager.Instance.OnUpdate += Transcription;
     }
@@ -60,7 +60,7 @@ public class Cell : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒZƒ‹‚Ì•\¦‚ğXV‚·‚é
+    /// ã‚»ãƒ«ã®è¡¨ç¤ºã‚’æ›´æ–°ã™ã‚‹
     /// </summary>
     private void Transcription()
     {

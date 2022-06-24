@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,10 +6,10 @@ public class GameManager : MonoBehaviour
 {
     static public GameManager Instance;
 
-    /// <summary>ƒQ[ƒ€‚Ìisó‘Ô</summary>
+    /// <summary>ã‚²ãƒ¼ãƒ ã®é€²è¡ŒçŠ¶æ…‹</summary>
     bool _isPlay = false;
 
-    /// <summary>ƒQ[ƒ€‚Ìisó‘Ô</summary>
+    /// <summary>ã‚²ãƒ¼ãƒ ã®é€²è¡ŒçŠ¶æ…‹</summary>
     public bool IsPlay { get => _isPlay; }
 
     private void Awake()
@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒQ[ƒ€‚ÌŠJn
+    /// ã‚²ãƒ¼ãƒ ã®é–‹å§‹
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>

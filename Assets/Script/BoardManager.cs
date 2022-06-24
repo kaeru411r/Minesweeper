@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -6,28 +6,28 @@ using System.Text;
 using System.Linq;
 
 /// <summary>
-/// ƒQ[ƒ€ƒ{[ƒh‚ÌŠÇ—‚ğ‚·‚éƒNƒ‰ƒX
+/// ã‚²ãƒ¼ãƒ ãƒœãƒ¼ãƒ‰ã®ç®¡ç†ã‚’ã™ã‚‹ã‚¯ãƒ©ã‚¹
 /// </summary>
 public class BoardManager : MonoBehaviour
 {
     static public BoardManager Instance;
 
-    [Tooltip("”š’e‚Ì”")]
+    [Tooltip("çˆ†å¼¾ã®æ•°")]
     [SerializeField] int _bomb;
-    [Tooltip("ƒtƒB[ƒ‹ƒh‚Ì”z’u")]
+    [Tooltip("ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã®é…ç½®")]
     [SerializeField] Block[] _fieldSettings;
-    [Tooltip("˜A½“I‚É‰ğ•ú‚·‚é‚Ìˆê‰ñ‚ÌŠÔ")]
+    [Tooltip("é€£é–çš„ã«è§£æ”¾ã™ã‚‹æ™‚ã®ä¸€å›ã®æ™‚é–“")]
     [SerializeField] float _openTime;
-    [Tooltip("ƒZƒ‹‚ÌƒvƒŒƒnƒu")]
+    [Tooltip("ã‚»ãƒ«ã®ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] Cell _cellPrefab;
 
     RectTransform _tr;
 
-    /// <summary>ƒ{[ƒh‘S‘Ì‚ÌSell‚ğŠi”[</summary>
+    /// <summary>ãƒœãƒ¼ãƒ‰å…¨ä½“ã®Sellã‚’æ ¼ç´</summary>
     Cell[,] _field;
 
 
-    /// <summary>ƒ{[ƒh‘S‘Ì‚ÌSell‚ğŠi”[</summary>
+    /// <summary>ãƒœãƒ¼ãƒ‰å…¨ä½“ã®Sellã‚’æ ¼ç´</summary>
     public Cell[,] Field
     {
         get
@@ -40,11 +40,11 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    /// <summary>‰Šú‰»‚ÉŒÄ‚Ño‚µ</summary>
+    /// <summary>åˆæœŸåŒ–æ™‚ã«å‘¼ã³å‡ºã—</summary>
     public event Action OnSetUp;
-    /// <summary>XV‚ÉŒÄ‚Ño‚µ</summary>
+    /// <summary>æ›´æ–°æ™‚ã«å‘¼ã³å‡ºã—</summary>
     public event Action OnUpdate;
-    /// <summary>”š”­‚µ‚½‚ÉŒÄ‚Ño‚µ</summary>
+    /// <summary>çˆ†ç™ºã—ãŸæ™‚ã«å‘¼ã³å‡ºã—</summary>
     public event Action OnExplosion;
 
     private void Awake()
@@ -73,7 +73,7 @@ public class BoardManager : MonoBehaviour
             {
                 if (_field[i, k].State == SellState.Nomal)
                 {
-                    sb.Append("¡");
+                    sb.Append("â– ");
                 }
                 else if (_field[i, k].State == SellState.Dug)
                 {
@@ -83,16 +83,16 @@ public class BoardManager : MonoBehaviour
                     }
                     else
                     {
-                        sb.Append("‚w");
+                        sb.Append("ï¼¸");
                     }
                 }
                 else if (_field[i, k].State == SellState.Flag)
                 {
-                    sb.Append("‚e");
+                    sb.Append("ï¼¦");
                 }
                 else if (_field[i, k].State == SellState.Null)
                 {
-                    sb.Append(" ");
+                    sb.Append("â–¡");
                 }
             }
             sb.AppendLine();
@@ -102,21 +102,21 @@ public class BoardManager : MonoBehaviour
 
 
     /// <summary>
-    /// w’èÀ•W‚ªƒGƒŠƒA“à‚©”Û‚©‚ğ•Ô‚·
+    /// æŒ‡å®šåº§æ¨™ãŒã‚¨ãƒªã‚¢å†…ã‹å¦ã‹ã‚’è¿”ã™
     /// </summary>
     /// <param name="point"></param>
-    /// <returns>w’èÀ•W‚ªƒGƒŠƒA“à‚©”Û‚©</returns>
+    /// <returns>æŒ‡å®šåº§æ¨™ãŒã‚¨ãƒªã‚¢å†…ã‹å¦ã‹</returns>
     bool EreaCheck(Vector2Int point)
     {
         return EreaCheck(point.y, point.x);
     }
 
     /// <summary>
-    /// w’èÀ•W‚ªƒGƒŠƒA“à‚©”Û‚©‚ğ•Ô‚·
+    /// æŒ‡å®šåº§æ¨™ãŒã‚¨ãƒªã‚¢å†…ã‹å¦ã‹ã‚’è¿”ã™
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    /// <returns>w’èÀ•W‚ªƒGƒŠƒA“à‚©”Û‚©</returns>
+    /// <returns>æŒ‡å®šåº§æ¨™ãŒã‚¨ãƒªã‚¢å†…ã‹å¦ã‹</returns>
     bool EreaCheck(int row, int col)
     {
         if (row >= 0 && row < _field.GetLength(0) && col >= 0 && col < _field.GetLength(1))
@@ -131,17 +131,17 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ”š’e‚Ìİ’u‚ğ‚İ‚é
+    /// çˆ†å¼¾ã®è¨­ç½®ã‚’è©¦ã¿ã‚‹
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    /// <returns>İ’u‚Ì¬”Û</returns>
+    /// <returns>è¨­ç½®ã®æˆå¦</returns>
     bool BombSet(int row, int col)
     {
         if (!(_field[row, col].Bomb || _field[row, col].State == SellState.Null))
         {
             _field[row, col].Bomb = true;
-            //”š’e‚ÌüˆÍ‚Ìƒ}ƒX‚Ì”š’e”{‚P
+            //çˆ†å¼¾ã®å‘¨å›²ã®ãƒã‚¹ã®çˆ†å¼¾æ•°ï¼‹ï¼‘
             for (int i = row - 1 >= 0 ? row - 1 : 0; i < _field.GetLength(0) && i <= row + 1; i++)
             {
                 for (int k = col - 1 >= 0 ? col - 1 : 0; k < _field.GetLength(1) && k <= col + 1; k++)
@@ -155,31 +155,31 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ”š’e‚Ìİ’u‚ğ‚İ‚é
+    /// çˆ†å¼¾ã®è¨­ç½®ã‚’è©¦ã¿ã‚‹
     /// </summary>
     /// <param name="point"></param>
-    /// <returns>İ’u‚Ì¬”Û</returns>
+    /// <returns>è¨­ç½®ã®æˆå¦</returns>
     bool BombSet(Vector2Int point)
     {
         return BombSet(point.y, point.x);
     }
 
     /// <summary>
-    /// _field”z—ñ‚ğ_fieldSettings‚É‡‚í‚¹‚Ä‰Šú‰»
+    /// _fieldé…åˆ—ã‚’_fieldSettingsã«åˆã‚ã›ã¦åˆæœŸåŒ–
     /// </summary>
     public void SetField()
     {
-        //x‚Ì—¼’[‚ğŠi”[‚·‚é”z—ñ‚ÌƒŠƒXƒg
+        //xã®ä¸¡ç«¯ã‚’æ ¼ç´ã™ã‚‹é…åˆ—ã®ãƒªã‚¹ãƒˆ
         List<int[]> x = new List<int[]>();
         x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
-        //y‚Ì—¼’[‚ğŠi”[‚·‚é”z—ñ‚ÌƒŠƒXƒg
+        //yã®ä¸¡ç«¯ã‚’æ ¼ç´ã™ã‚‹é…åˆ—ã®ãƒªã‚¹ãƒˆ
         List<int[]> y = new List<int[]>();
         y.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
-        //x‚Æy‚»‚ê‚¼‚ê‚ÌÅ¬’l
+        //xã¨yãã‚Œãã‚Œã®æœ€å°å€¤
         Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
-        //x‚Æy‚»‚ê‚¼‚ê‚ÌÅ‘å’l
+        //xã¨yãã‚Œãã‚Œã®æœ€å¤§å€¤
         Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
-        //x‚Æy‚»‚ê‚¼‚ê‚ÌÅ¬AÅ‘å’l‚ğŒˆ‚ß‚é
+        //xã¨yãã‚Œãã‚Œã®æœ€å°ã€æœ€å¤§å€¤ã‚’æ±ºã‚ã‚‹
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
             x.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
@@ -190,10 +190,10 @@ public class BoardManager : MonoBehaviour
                 max = new Vector2Int(Mathf.Max(x[i].Max(), max.x), Mathf.Max(y[i].Max(), max.y));
             }
         }
-        //field‚ÌƒTƒCƒY‚ğŒˆ’è‚µA”z—ñ‚ğ—pˆÓ
+        //fieldã®ã‚µã‚¤ã‚ºã‚’æ±ºå®šã—ã€é…åˆ—ã‚’ç”¨æ„
         _field = new Cell[max.y - min.y + 1, max.x - min.x + 1];
 
-        //”z—ñ“à‚ÌŠe—v‘f‚ğƒCƒ“ƒXƒ^ƒ“ƒX‰»
+        //é…åˆ—å†…ã®å„è¦ç´ ã‚’ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹åŒ–
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
@@ -203,7 +203,7 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        //ƒGƒŠƒA‚Éw’è‚³‚ê‚Ä‚¢‚éƒ}ƒX‚ğNomal‚É
+        //ã‚¨ãƒªã‚¢ã«æŒ‡å®šã•ã‚Œã¦ã„ã‚‹ãƒã‚¹ã‚’Nomalã«
         for (int i = 0; i < _fieldSettings.Length; i++)
         {
             for (int k = x[i].Min() - min.y; k <= x[i].Max() - min.y; k++)
@@ -219,7 +219,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ’n—‹•~İ
+    /// åœ°é›·æ•·è¨­
     /// </summary>
     public void MineLaying()
     {
@@ -232,7 +232,7 @@ public class BoardManager : MonoBehaviour
             {
                 int r = UnityEngine.Random.Range(0, _field.GetLength(0));
                 int c = UnityEngine.Random.Range(0, _field.GetLength(1));
-                //”š’e‚Ì”z’u—\’è‰ÓŠ‚É”š’e‚ª‚ ‚Á‚½‚ç
+                //çˆ†å¼¾ã®é…ç½®äºˆå®šç®‡æ‰€ã«çˆ†å¼¾ãŒã‚ã£ãŸã‚‰
                 if (!BombSet(r, c))
                 {
                     i--;
@@ -242,7 +242,7 @@ public class BoardManager : MonoBehaviour
                 if (failure > failureLimit)
                 {
                     failure = 0;
-                    Debug.LogWarning("”š’e‚Ì”z’u‰Â”\‰ÓŠ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½");
+                    Debug.LogWarning("çˆ†å¼¾ã®é…ç½®å¯èƒ½ç®‡æ‰€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ");
                     _bomb--;
                 }
             }
@@ -251,7 +251,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// w’èƒZƒ‹‹y‚Ñ‚»‚ÌüˆÍ1ƒ}ƒX‚ğœ‚­ƒtƒB[ƒ‹ƒh‚É’n—‹‚ğ•~İ‚·‚é
+    /// æŒ‡å®šã‚»ãƒ«åŠã³ãã®å‘¨å›²1ãƒã‚¹ã‚’é™¤ããƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã«åœ°é›·ã‚’æ•·è¨­ã™ã‚‹
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
@@ -268,7 +268,7 @@ public class BoardManager : MonoBehaviour
             {
                 int r = UnityEngine.Random.Range(0, _field.GetLength(0));
                 int c = UnityEngine.Random.Range(0, _field.GetLength(1));
-                //”š’e‚Ì”z’u—\’è‰ÓŠ‚ªw’èƒZƒ‹‚ÌüˆÍ‚Pƒ}ƒX‚¾‚Á‚½‚çÄ’Š‘I
+                //çˆ†å¼¾ã®é…ç½®äºˆå®šç®‡æ‰€ãŒæŒ‡å®šã‚»ãƒ«ã®å‘¨å›²ï¼‘ãƒã‚¹ã ã£ãŸã‚‰å†æŠ½é¸
                 if ((Mathf.Abs(r - area.y) <= 1 && Mathf.Abs(c - area.x) <= 1))
                 {
                     i--;
@@ -286,7 +286,7 @@ public class BoardManager : MonoBehaviour
                 if (failure > failureLimit)
                 {
                     failure = 0;
-                    Debug.LogWarning("”š’e‚Ì”z’u‰Â”\‰ÓŠ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½");
+                    Debug.LogWarning("çˆ†å¼¾ã®é…ç½®å¯èƒ½ç®‡æ‰€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ");
                     _bomb--;
                 }
             }
@@ -299,7 +299,7 @@ public class BoardManager : MonoBehaviour
 
 
     /// <summary>
-    /// w’è‚µ‚½ƒZƒ‹‚ğŒ@‚é
+    /// æŒ‡å®šã—ãŸã‚»ãƒ«ã‚’æ˜ã‚‹
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
@@ -308,7 +308,7 @@ public class BoardManager : MonoBehaviour
         Dig(point.y, point.x);
     }
     /// <summary>
-    /// w’è‚µ‚½ƒZƒ‹‚ğŒ@‚é
+    /// æŒ‡å®šã—ãŸã‚»ãƒ«ã‚’æ˜ã‚‹
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
@@ -349,7 +349,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒtƒB[ƒ‹ƒh‚ğ˜A½“I‚É‰ğ•ú‚µ‚Ä‚¢‚­
+    /// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã‚’é€£é–çš„ã«è§£æ”¾ã—ã¦ã„ã
     /// </summary>
     /// <param name="_openTime"></param>
     /// <param name="sells"></param>
@@ -390,7 +390,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// w’èƒZƒ‹‚ÌüˆÍ‚ğŒ@‚é
+    /// æŒ‡å®šã‚»ãƒ«ã®å‘¨å›²ã‚’æ˜ã‚‹
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
@@ -411,7 +411,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// w’è‚µ‚½ƒZƒ‹‚ÉŠø‚ğ—§‚Ä‚é
+    /// æŒ‡å®šã—ãŸã‚»ãƒ«ã«æ——ã‚’ç«‹ã¦ã‚‹
     /// </summary>
     /// <param name="r"></param>
     /// <param name="c"></param>
@@ -432,7 +432,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// w’è‚µ‚½ƒZƒ‹‚ÉŠø‚ğ—§‚Ä‚é
+    /// æŒ‡å®šã—ãŸã‚»ãƒ«ã«æ——ã‚’ç«‹ã¦ã‚‹
     /// </summary>
     /// <param name="point"></param>
     public void Flag(Vector2Int point)
@@ -441,7 +441,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ”š”­
+    /// çˆ†ç™º
     /// </summary>
     void Explosion()
     {
@@ -450,7 +450,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// OnUpdate‚ÌŒÄ‚Ño‚µ
+    /// OnUpdateã®å‘¼ã³å‡ºã—
     /// </summary>
     void CallOnUpdate()
     {
@@ -461,7 +461,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// OnSetUp‚ÌŒÄ‚Ño‚µ
+    /// OnSetUpã®å‘¼ã³å‡ºã—
     /// </summary>
     void CallOnSetUp()
     {
@@ -472,7 +472,7 @@ public class BoardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// OnExplosion‚ÌŒÄ‚Ño‚µ
+    /// OnExplosionã®å‘¼ã³å‡ºã—
     /// </summary>
     void CallOnExplosion()
     {
@@ -486,25 +486,25 @@ public class BoardManager : MonoBehaviour
 [Serializable]
 public struct Block
 {
-    /// <summary>Œ´“_</summary>
+    /// <summary>åŸç‚¹</summary>
     public Vector2Int Origin;
-    /// <summary>—Ìˆæ‚ÌL‚³</summary>
+    /// <summary>é ˜åŸŸã®åºƒã•</summary>
     public Vector2Int Area;
 }
 
 /// <summary>
-/// ƒ}ƒX‚Ìó‘Ô
+/// ãƒã‚¹ã®çŠ¶æ…‹
 /// </summary>
 public enum SellState
 {
-    /// <summary>‰½‚à‚µ‚Ä‚È‚¢</summary>
+    /// <summary>ä½•ã‚‚ã—ã¦ãªã„</summary>
     Nomal,
-    /// <summary>Œ@‚Á‚½</summary>
+    /// <summary>æ˜ã£ãŸ</summary>
     Dug,
-    /// <summary>Šø‚ğ—§‚Ä‚½</summary>
+    /// <summary>æ——ã‚’ç«‹ã¦ãŸ</summary>
     Flag,
-    /// <summary>Œ@‚é—\’è</summary>
+    /// <summary>æ˜ã‚‹äºˆå®š</summary>
     WillDig,
-    /// <summary>–³Œø‚ÈƒZƒ‹</summary>
+    /// <summary>ç„¡åŠ¹ãªã‚»ãƒ«</summary>
     Null,
 }
