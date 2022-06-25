@@ -191,7 +191,7 @@ public class BoardManager : MonoBehaviour
             }
         }
         //fieldのサイズを決定し、配列を用意
-        _field = new Cell[max.y - min.y + 1, max.x - min.x + 1];
+        _field = new Cell[max.y - min.y, max.x - min.x];
         float spase = _cellPrefab.GetComponent<RectTransform>().rect.height;
         //配列内の各要素をインスタンス化
         for (int i = 0; i < _field.GetLength(0); i++)
