@@ -651,7 +651,7 @@ MonoBehaviour:
   _bomb: 20
   _fieldSettings:
   - Origin: {x: 0, y: 0}
-    Area: {x: 10, y: 10}
+    Area: {x: 10, y: 2}
   _openTime: -10
   _cellPrefab: {fileID: 3320081222455334577, guid: 1a2f3585753e7174db910989c7d32af3, type: 3}
 --- !u!114 &1521906005

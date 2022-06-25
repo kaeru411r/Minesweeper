@@ -171,14 +171,14 @@ public class BoardManager : MonoBehaviour
     {
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
-        x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
+        x.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
         //yの両端を格納する配列のリスト
         List<int[]> y = new List<int[]>();
-        y.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
+        y.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
         //xとyそれぞれの最小値
-        Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
+        Vector2Int min = new Vector2Int(y[0].Min(), x[0].Min());
         //xとyそれぞれの最大値
-        Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
+        Vector2Int max = new Vector2Int(y[0].Max(), x[0].Max());
         //xとyそれぞれの最小、最大値を決める
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
@@ -198,8 +198,8 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                float width = _tr.rect.width / 2 + i * spase - _field.GetLength(0) / 2 * spase;
-                float height = _tr.rect.height / 2 + k * spase - _field.GetLength(1) / 2 * spase;
+                float width = _tr.rect.width / 2 + k * spase - _field.GetLength(1) / 2 * spase;
+                float height = _tr.rect.height / 2 + i * spase - _field.GetLength(0) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
             }
         }
@@ -211,7 +211,7 @@ public class BoardManager : MonoBehaviour
             {
                 for (int m = x[i].Min() - min.x; m < x[i].Max() - min.x; m++)
                 {
-                    _field[k, m].State = SellState.Nomal;
+                    _field[m, k].State = SellState.Nomal;
                 }
             }
         }
