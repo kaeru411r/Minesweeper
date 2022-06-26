@@ -59,7 +59,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _tr = GetComponent<RectTransform>();
-        OnUpdate += Log;
+        //OnUpdate += Log;
         OnUpdate += FieldCheck;
         SetField();
 
@@ -363,7 +363,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 _field[row, col].State = CellState.WillDig;
                 cells.Add(new List<Vector2Int>());
                 cells[0].Add(new Vector2Int(row, col));
-                AroundDig(row, col, cells);
+                AroundDig(row, col, 0, cells);
             }
             else
             {
@@ -430,25 +430,54 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    void AroundDig(int row, int col, List<List<Vector2Int>> cells)
+    void AroundDig(int row, int col, int distance, List<List<Vector2Int>> cells)
     {
-        if (cells[0].Count == 0) return;
+        //Debug.Log($"{row}, {col}");
         for (int i = row - 1; i <= row + 1; i++)
         {
             for (int k = col - 1; k <= col + 1; k++)
             {
-                if (EreaCheck(i, k) && _field[i, k].State == CellState.Nomal)
+                if (EreaCheck(i, k))
                 {
-                    _field[i, k].State = CellState.WillDig;
-                    int dis = Mathf.Abs((i - cells[0][0].x)) + Mathf.Abs((k - cells[0][0].y));
-                    while (dis > cells.Count - 1)
+                    Vector2Int point = new Vector2Int(i, k);
+                    int dis = distance + Mathf.Abs(row - i) + Mathf.Abs(col - k);
+                    Debug.Log($"{dis}, {cells.Count}");
+                    if (_field[i, k].State == CellState.Nomal)
                     {
-                        cells.Add(new List<Vector2Int>());
+                        _field[i, k].State = CellState.WillDig;
+
+                        while (dis > cells.Count - 1)
+                        {
+                            cells.Add(new List<Vector2Int>());
+                        }
+                        cells[dis].Add(point);
+                        if (_field[i, k].Number == 0)
+                        {
+                            AroundDig(i, k, dis, cells);
+                        }
                     }
-                    cells[dis].Add(new Vector2Int(i, k));
-                    if (_field[i, k].Number == 0)
+                    else if(_field[i, k].State == CellState.WillDig && cells.Count > dis)
                     {
-                        AroundDig(i, k, cells);
+                        Debug.Log($"{dis}, {cells.Count}");
+                        for (int d = 0; d < cells.Count; d++)
+                        {
+                            for (int m = 0; m < cells[d].Count; m++)
+                            {
+                                if (cells[d][m] == point)
+                                {
+                                    if(d > dis)
+                                    {
+                                        cells[d].RemoveAt(m);
+                                        cells[dis].Add(point);
+                                        Debug.Log($"{dis}, {cells.Count}");
+                                        if (_field[i, k].Number == 0)
+                                        {
+                                            AroundDig(i, k, dis, cells);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -567,7 +596,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                     }
                     else
                     {
-                        Debug.Log(2);
                         GameManager.Instance.GameStart(cell.Position);
                     }
                 }
