@@ -14,6 +14,7 @@ public class TestController : MonoBehaviour
             if (GameManager.Instance.IsPlay)
             {
                 BoardManager.Instance.Dig(_point);
+                Debug.Log("11");
             }
             else
             {

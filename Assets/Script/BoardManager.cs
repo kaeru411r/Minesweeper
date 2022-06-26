@@ -23,11 +23,11 @@ public class BoardManager : MonoBehaviour
 
     RectTransform _tr;
 
-    /// <summary>ボード全体のSellを格納</summary>
-    Cell[,] _field;
+    /// <summary>ボード全体のCellを格納</summary>
+    Cell[,] _field = new Cell[0,0];
 
 
-    /// <summary>ボード全体のSellを格納</summary>
+    /// <summary>ボード全体のCellを格納</summary>
     public Cell[,] Field
     {
         get
@@ -59,9 +59,9 @@ public class BoardManager : MonoBehaviour
         OnUpdate += Log;
         SetField();
 
-        List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
-        AroundDig(1, 1, sells);
-        StartCoroutine(ChainDig(sells));
+        //List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
+        //AroundDig(1, 1, cells);
+        //StartCoroutine(ChainDig(cells));
     }
 
     void Log()
@@ -71,11 +71,15 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                if (_field[i, k].State == SellState.Nomal)
+                if(_field[i, k].Bomb)
+                {
+                    sb.Append("B");
+                }
+                else if (_field[i, k].State == CellState.Nomal)
                 {
                     sb.Append("■");
                 }
-                else if (_field[i, k].State == SellState.Dug)
+                else if (_field[i, k].State == CellState.Dug)
                 {
                     if (_field[i, k].Number != 0)
                     {
@@ -86,11 +90,11 @@ public class BoardManager : MonoBehaviour
                         sb.Append("Ｘ");
                     }
                 }
-                else if (_field[i, k].State == SellState.Flag)
+                else if (_field[i, k].State == CellState.Flag)
                 {
                     sb.Append("Ｆ");
                 }
-                else if (_field[i, k].State == SellState.Null)
+                else if (_field[i, k].State == CellState.Null)
                 {
                     sb.Append("□");
                 }
@@ -121,7 +125,7 @@ public class BoardManager : MonoBehaviour
     {
         if (row >= 0 && row < _field.GetLength(0) && col >= 0 && col < _field.GetLength(1))
         {
-            if (_field[row, col].State != SellState.Null)
+            if (_field[row, col].State != CellState.Null)
             {
                 return true;
             }
@@ -138,7 +142,7 @@ public class BoardManager : MonoBehaviour
     /// <returns>設置の成否</returns>
     bool BombSet(int row, int col)
     {
-        if (!(_field[row, col].Bomb || _field[row, col].State == SellState.Null))
+        if (!(_field[row, col].Bomb || _field[row, col].State == CellState.Null))
         {
             _field[row, col].Bomb = true;
             //爆弾の周囲のマスの爆弾数＋１
@@ -169,8 +173,10 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     public void SetField()
     {
+        ResetField();
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
+        //Array.ForEach(_fieldSettings, f => x.Add(new int[] { f.Area.y + f.Origin.y, f.Origin.y }));
         x.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
         //yの両端を格納する配列のリスト
         List<int[]> y = new List<int[]>();
@@ -179,11 +185,22 @@ public class BoardManager : MonoBehaviour
         Vector2Int min = new Vector2Int(y[0].Min(), x[0].Min());
         //xとyそれぞれの最大値
         Vector2Int max = new Vector2Int(y[0].Max(), x[0].Max());
+        //if(min.x < 0)
+        //{
+        //    min += new Vector2Int(min.x * -1, 0);
+        //    max += new Vector2Int(min.x * -1, 0);
+        //    //foreach()
+        //}
+        //else if (min.y < 0)
+        //{
+        //    min += new Vector2Int(0, min.y * -1);
+        //    max += new Vector2Int(0, min.y * -1);
+        //}
         //xとyそれぞれの最小、最大値を決める
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
-            x.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
-            y.Add(new int[] { _fieldSettings[i].Area.y + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
+            x.Add(new int[] { _fieldSettings[i].Area.y + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
+            y.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
             if (x[i].Min() < min.x || x[i].Max() > max.x || y[i].Min() < min.y || y[i].Max() > max.y)
             {
                 min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
@@ -198,8 +215,8 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                float width = _tr.rect.width / 2 + k * spase - _field.GetLength(1) / 2 * spase;
-                float height = _tr.rect.height / 2 + i * spase - _field.GetLength(0) / 2 * spase;
+                float width = _tr.position.x + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
+                float height = _tr.position.y - i * spase + (float)(_field.GetLength(0) - 1) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
             }
         }
@@ -207,16 +224,27 @@ public class BoardManager : MonoBehaviour
         //エリアに指定されているマスをNomalに
         for (int i = 0; i < _fieldSettings.Length; i++)
         {
-            for (int k = y[i].Min() - min.y; k < y[i].Max() - min.y; k++)
+            for (int k = y[i].Min() - min.x; k < y[i].Max() - min.x; k++)
             {
-                for (int m = x[i].Min() - min.x; m < x[i].Max() - min.x; m++)
+                for (int m = x[i].Min() - min.y; m < x[i].Max() - min.y; m++)
                 {
-                    _field[m, k].State = SellState.Nomal;
+                    _field[m, k].State = CellState.Nomal;
                 }
             }
         }
         CallOnSetUp();
         CallOnUpdate();
+    }
+
+    private void ResetField()
+    {
+        for (int i = 0; i < _field.GetLength(0); i++)
+        {
+            for (int k = 0; k < _field.GetLength(1); k++)
+            {
+                Destroy(_field[i, k].gameObject);
+            }
+        }
     }
 
     /// <summary>
@@ -315,9 +343,10 @@ public class BoardManager : MonoBehaviour
     /// <param name="col"></param>
     public void Dig(int row, int col)
     {
-        if (_field[row, col].State == SellState.Nomal)
+        //Debug.Log($"{row}, {col}");
+        if (_field[row, col].State == CellState.Nomal)
         {
-            List<List<Vector2Int>> sells = new List<List<Vector2Int>>();
+            List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
             if (_field[row, col].Bomb)
             {
                 Explosion();
@@ -325,27 +354,27 @@ public class BoardManager : MonoBehaviour
             }
             else if (_field[row, col].Number == 0)
             {
-                _field[row, col].State = SellState.WillDig;
-                sells.Add(new List<Vector2Int>());
-                sells[0].Add(new Vector2Int(col, row));
-                AroundDig(row, col, sells);
+                _field[row, col].State = CellState.WillDig;
+                cells.Add(new List<Vector2Int>());
+                cells[0].Add(new Vector2Int(col, row));
+                AroundDig(row, col, cells);
             }
             else
             {
-                sells.Add(new List<Vector2Int>());
-                sells[0].Add(new Vector2Int(col, row));
+                cells.Add(new List<Vector2Int>());
+                cells[0].Add(new Vector2Int(col, row));
             }
-            ChainDig(sells);
+            StartCoroutine(ChainDig(cells));
         }
     }
 
-    void DigErea(List<List<Vector2Int>> sells, Vector2Int point)
+    void DigErea(List<List<Vector2Int>> cells, Vector2Int point)
     {
         if (EreaCheck(point))
         {
-            var o = sells[0][0];
+            var o = cells[0][0];
             int d = (point.x - o.x) + (point.y + o.y);
-            sells[d].Add(point);
+            cells[d].Add(point);
         }
     }
 
@@ -353,23 +382,28 @@ public class BoardManager : MonoBehaviour
     /// フィールドを連鎖的に解放していく
     /// </summary>
     /// <param name="_openTime"></param>
-    /// <param name="sells"></param>
+    /// <param name="cells"></param>
     /// <returns></returns>
-    IEnumerator ChainDig(List<List<Vector2Int>> sells)
+    IEnumerator ChainDig(List<List<Vector2Int>> cells)
     {
         _openTime = 0 > _openTime ? 0 : _openTime;
         int i = 0;
         float time = 0;
+        Debug.Log(0);
 
         if (_openTime > 0)
         {
-            for (; i < sells.Count;)
+            Debug.Log(1);
+            for (; i < cells.Count;)
             {
-                for (; i <= time / _openTime && i < sells.Count; i++)
+                Debug.Log(2);
+                for (; i <= time / _openTime && i < cells.Count; i++)
                 {
-                    foreach (var v in sells[i])
+                    Debug.Log(3);
+                    foreach (var v in cells[i])
                     {
-                        _field[v.x, v.y].State = SellState.Dug;
+                        Debug.Log(4);
+                        _field[v.x, v.y].State = CellState.Dug;
                     }
                 }
                 CallOnUpdate();
@@ -379,11 +413,12 @@ public class BoardManager : MonoBehaviour
         }
         else
         {
-            foreach (var v in sells)
+            Debug.Log(5);
+            foreach (var v in cells)
             {
                 foreach (var v2 in v)
                 {
-                    _field[v2.x, v2.y].State = SellState.Dug;
+                    _field[v2.x, v2.y].State = CellState.Dug;
                 }
             }
             CallOnUpdate();
@@ -395,17 +430,24 @@ public class BoardManager : MonoBehaviour
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    void AroundDig(int row, int col, List<List<Vector2Int>> sells)
+    void AroundDig(int row, int col, List<List<Vector2Int>> cells)
     {
+        if (cells[0].Count == 0) return;
         for (int i = row - 1; i <= row + 1; i++)
         {
             for (int k = col - 1; k <= col + 1; k++)
             {
-                if (EreaCheck(i, k) && Field[i, k].State == SellState.Nomal)
+                if (EreaCheck(i, k) && Field[i, k].State == CellState.Nomal)
                 {
                     Debug.Log($"{i}, {k}");
-                    _field[i, k].State = SellState.WillDig;
-                    AroundDig(i, k, sells);
+                    _field[i, k].State = CellState.WillDig;
+                    int dis = (i - cells[0][0].x) + (k - cells[0][0].y);
+                    if (dis > cells.Count - 1)
+                    {
+                        cells.Add(new List<Vector2Int>());
+                    }
+                    cells[dis].Add(new Vector2Int(i, k));
+                    AroundDig(i, k, cells);
                 }
             }
         }
@@ -420,13 +462,13 @@ public class BoardManager : MonoBehaviour
     {
         if (EreaCheck(r, c))
         {
-            if (_field[r, c].State == SellState.Flag)
+            if (_field[r, c].State == CellState.Flag)
             {
-                _field[r, c].State = SellState.Nomal;
+                _field[r, c].State = CellState.Nomal;
             }
-            else if (_field[r, c].State == SellState.Nomal)
+            else if (_field[r, c].State == CellState.Nomal)
             {
-                _field[r, c].State = SellState.Flag;
+                _field[r, c].State = CellState.Flag;
             }
             CallOnUpdate();
         }
@@ -496,7 +538,7 @@ public struct Block
 /// <summary>
 /// マスの状態
 /// </summary>
-public enum SellState
+public enum CellState
 {
     /// <summary>何もしてない</summary>
     Nomal,

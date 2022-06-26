@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Cell : MonoBehaviour
 {
     [SerializeField] int _number;
-    [SerializeField] SellState _state;
+    [SerializeField] CellState _state;
     [SerializeField] bool _bomb;
     [SerializeField] int _row;
     [SerializeField] int _col;
@@ -16,12 +16,44 @@ public class Cell : MonoBehaviour
     RectTransform _tr;
 
     /// <summary>/// 周囲１マスの爆弾の数/// </summary>
-    public int Number { get => _number; set => _number = value; }
+    public int Number
+    {
+        get => _number;
+        set
+        {
+            _number = value;
+            Transcription();
+        }
+    }
     /// <summary>現在のマスの状態</summary>
-    public SellState State { get => _state; set => _state = value; }
+    public CellState State
+    {
+        get => _state;
+        set
+        {
+            _state = value;
+            Transcription();
+        }
+    }
     /// <summary>爆弾の有無</summary>
-    public bool Bomb { get => _bomb; set => _bomb = value; }
-    public float Scale { get => _scale; set => _scale = value; }
+    public bool Bomb
+    {
+        get => _bomb;
+        set
+        {
+            _bomb = value;
+            Transcription();
+        }
+    }
+    public float Scale
+    {
+        get => _scale;
+        set
+        {
+            _scale = value;
+            Transcription();
+        }
+    }
 
     public override string ToString()
     {
@@ -70,7 +102,7 @@ public class Cell : MonoBehaviour
             _image = GetComponent<Image>();
         }
         if (_text == null) return;
-        if (_state == SellState.Dug)
+        if (_state == CellState.Dug)
         {
             _image.color = Color.white;
             if (_bomb)
@@ -92,7 +124,7 @@ public class Cell : MonoBehaviour
                 }
             }
         }
-        else if (_state == SellState.Flag)
+        else if (_state == CellState.Flag)
         {
             _text.text = "F";
             _text.color = Color.yellow;
