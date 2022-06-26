@@ -352,7 +352,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (_field[row, col].State == CellState.Nomal)
         {
-            //List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
             Dictionary<Vector2Int, int> cells = new Dictionary<Vector2Int, int>();
             if (_field[row, col].Bomb)
             {
@@ -362,73 +361,23 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
             else if (_field[row, col].Number == 0)
             {
                 _field[row, col].State = CellState.WillDig;
-                //cells.Add(new List<Vector2Int>());
-                //cells[0].Add(new Vector2Int(row, col));
                 cells.Add(new Vector2Int(row, col), 0);
                 AroundDig(row, col, 0, cells);
             }
             else
             {
-                //cells.Add(new List<Vector2Int>());
-                //cells[0].Add(new Vector2Int(row, col));
                 cells.Add(new Vector2Int(row, col), 0);
             }
             StartCoroutine(ChainDig(cells));
         }
     }
 
-    void DigErea(List<List<Vector2Int>> cells, Vector2Int point)
-    {
-        if (EreaCheck(point))
-        {
-            var o = cells[0][0];
-            int d = (point.x - o.x) + (point.y + o.y);
-            cells[d].Add(point);
-        }
-    }
 
     /// <summary>
     /// フィールドを連鎖的に解放していく
     /// </summary>
-    /// <param name="_openTime"></param>
-    /// <param name="cells"></param>
+    /// <param name="cells">keyが座標valueが道のり</param>
     /// <returns></returns>
-    IEnumerator ChainDig(List<List<Vector2Int>> cells)
-    {
-        _openTime = 0 > _openTime ? 0 : _openTime;
-        int i = 0;
-        float time = 0;
-
-        if (_openTime > 0)
-        {
-            for (; i < cells.Count;)
-            {
-                for (; i <= time / _openTime && i < cells.Count; i++)
-                {
-                    foreach (var v in cells[i])
-                    {
-                        _field[v.x, v.y].State = CellState.Dug;
-                    }
-                }
-                CallOnUpdate();
-                yield return null;
-                time += Time.deltaTime;
-            }
-        }
-        else
-        {
-            foreach (var v in cells)
-            {
-                foreach (var v2 in v)
-                {
-                    _field[v2.x, v2.y].State = CellState.Dug;
-                }
-            }
-            CallOnUpdate();
-        }
-    }
-
-
     IEnumerator ChainDig(Dictionary<Vector2Int, int> cells)
     {
         _openTime = 0 > _openTime ? 0 : _openTime;
@@ -441,12 +390,12 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
             foreach (var d in cells.OrderBy(c => c.Value))
             {
                 _field[d.Key.x, d.Key.y].State = CellState.Dug;
-                Debug.Log(d.Value);
                 while (d.Value * _openTime > time)
                 {
                     yield return null;
                     time += Time.deltaTime;
                 }
+                CallOnUpdate();
             }
         }
         else
@@ -459,62 +408,12 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
+
     /// <summary>
     /// 指定セルの周囲を掘る
     /// </summary>
     /// <param name="row"></param>
     /// <param name="col"></param>
-    void AroundDig(int row, int col, int distance, List<List<Vector2Int>> cells)
-    {
-        //Debug.Log($"{row}, {col}");
-        for (int i = row - 1; i <= row + 1; i++)
-        {
-            for (int k = col - 1; k <= col + 1; k++)
-            {
-                if (EreaCheck(i, k))
-                {
-                    Vector2Int point = new Vector2Int(i, k);
-                    int dis = distance + Mathf.Abs(row - i) + Mathf.Abs(col - k);
-                    Debug.Log($"{dis}, {cells.Count}");
-                    if (_field[i, k].State == CellState.Nomal)
-                    {
-                        _field[i, k].State = CellState.WillDig;
-
-                        while (dis > cells.Count - 1)
-                        {
-                            cells.Add(new List<Vector2Int>());
-                        }
-                        cells[dis].Add(point);
-                        if (_field[i, k].Number == 0)
-                        {
-                            AroundDig(i, k, dis, cells);
-                        }
-                    }
-                    else if (_field[i, k].State == CellState.WillDig && cells.Count > dis)
-                    {
-                        Debug.Log($"{dis}, {cells.Count}");
-                        if (DistanceChack())
-                        {
-                            cells[dis].Add(point);
-                            if (_field[i, k].Number == 0)
-                            {
-                                AroundDig(i, k, dis, cells);
-                            }
-                        }
-                    }
-                    bool DistanceChack()
-                    {
-                        for (int d = 0; d < dis; d++)
-                        {
-                            if (cells[d].Contains(point)) return false;
-                        }
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
     void AroundDig(int row, int col, int distance, Dictionary<Vector2Int, int> cells)
     {
         for (int i = row - 1; i <= row + 1; i++)
