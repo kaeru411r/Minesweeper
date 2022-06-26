@@ -4,11 +4,12 @@ using UnityEngine;
 using System;
 using System.Text;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// ゲームボードの管理をするクラス
 /// </summary>
-public class BoardManager : MonoBehaviour
+public class BoardManager : MonoBehaviour, IPointerClickHandler
 {
     static public BoardManager Instance;
 
@@ -24,7 +25,7 @@ public class BoardManager : MonoBehaviour
     RectTransform _tr;
 
     /// <summary>ボード全体のCellを格納</summary>
-    Cell[,] _field = new Cell[0,0];
+    Cell[,] _field = new Cell[0, 0];
 
 
     /// <summary>ボード全体のCellを格納</summary>
@@ -71,7 +72,7 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                if(_field[i, k].Bomb)
+                if (_field[i, k].Bomb)
                 {
                     sb.Append("B");
                 }
@@ -218,6 +219,7 @@ public class BoardManager : MonoBehaviour
                 float width = _tr.position.x + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
                 float height = _tr.position.y - i * spase + (float)(_field.GetLength(0) - 1) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
+                _field[i, k].Position = new Vector2Int(i, k);
             }
         }
 
@@ -437,17 +439,20 @@ public class BoardManager : MonoBehaviour
         {
             for (int k = col - 1; k <= col + 1; k++)
             {
-                if (EreaCheck(i, k) && Field[i, k].State == CellState.Nomal)
+                if (EreaCheck(i, k) && _field[i, k].State == CellState.Nomal)
                 {
-                    Debug.Log($"{i}, {k}");
                     _field[i, k].State = CellState.WillDig;
-                    int dis = (i - cells[0][0].x) + (k - cells[0][0].y);
-                    if (dis > cells.Count - 1)
+                    int dis = Mathf.Abs((i - cells[0][0].x) + (k - cells[0][0].y));
+                    while (dis > cells.Count - 1)
                     {
+                        Debug.Log($"{i}, {k}");
                         cells.Add(new List<Vector2Int>());
                     }
                     cells[dis].Add(new Vector2Int(i, k));
-                    AroundDig(i, k, cells);
+                    if (_field[i, k].Number == 0)
+                    {
+                        AroundDig(i, k, cells);
+                    }
                 }
             }
         }
@@ -522,6 +527,24 @@ public class BoardManager : MonoBehaviour
         if (OnExplosion != null)
         {
             OnExplosion();
+        }
+    }
+
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Cell cell = eventData.pointerCurrentRaycast.gameObject.transform.parent.GetComponent<Cell>();
+        Debug.Log(eventData.pointerCurrentRaycast.gameObject.transform.parent);
+        if (cell)
+        {
+            if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                Flag(cell.Position);
+            }
+            else if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                Dig(cell.Position);
+            }
         }
     }
 }

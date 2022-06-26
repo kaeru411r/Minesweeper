@@ -8,10 +8,9 @@ public class Cell : MonoBehaviour
     [SerializeField] int _number;
     [SerializeField] CellState _state;
     [SerializeField] bool _bomb;
-    [SerializeField] int _row;
-    [SerializeField] int _col;
     [SerializeField] float _scale;
     [SerializeField] Text _text;
+    Vector2Int _position;
     Image _image;
     RectTransform _tr;
 
@@ -54,6 +53,8 @@ public class Cell : MonoBehaviour
             Transcription();
         }
     }
+
+    public Vector2Int Position { get => _position; set => _position = value; }
 
     public override string ToString()
     {
