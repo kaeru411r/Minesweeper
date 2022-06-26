@@ -124,7 +124,6 @@ public class Cell : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log(ToString());
                     _text.text = $"{_number}";
                     _text.color = Color.blue;
                 }

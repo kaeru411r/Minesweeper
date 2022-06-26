@@ -14,14 +14,12 @@ public class TestController : MonoBehaviour
             if (GameManager.Instance.IsPlay)
             {
                 BoardManager.Instance.Dig(_point);
-                Debug.Log("11");
             }
             else
             {
                 GameManager.Instance.GameStart(_point);
             }
             _dig = false;
-            Debug.Log(GameManager.Instance.IsPlay);
         }
         if (_flag)
         {

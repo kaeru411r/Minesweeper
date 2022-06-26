@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         BoardManager.Instance.OnExplosion += Explosion;
+        BoardManager.Instance.OnClear += Clear;
         BoardManager.Instance.SetField();
         BoardManager.Instance.MineLaying();
     }
@@ -41,6 +42,12 @@ public class GameManager : MonoBehaviour
     }
 
     public void Explosion()
+    {
+        _isPlay = false;
+        BoardManager.Instance.SetField();
+    }
+
+    public void Clear()
     {
         _isPlay = false;
         BoardManager.Instance.SetField();

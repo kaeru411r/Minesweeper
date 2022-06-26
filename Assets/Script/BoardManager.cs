@@ -47,6 +47,8 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     public event Action OnUpdate;
     /// <summary>爆発した時に呼び出し</summary>
     public event Action OnExplosion;
+    /// <summary>クリア時に呼び出し</summary>
+    public event Action OnClear;
 
     private void Awake()
     {
@@ -58,6 +60,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         _tr = GetComponent<RectTransform>();
         OnUpdate += Log;
+        OnUpdate += FieldCheck;
         SetField();
 
         //List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
@@ -300,7 +303,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 int r = UnityEngine.Random.Range(0, _field.GetLength(0));
                 int c = UnityEngine.Random.Range(0, _field.GetLength(1));
                 //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
-                if ((Mathf.Abs(r - area.y) <= 1 && Mathf.Abs(c - area.x) <= 1))
+                if ((Mathf.Abs(r - area.x) <= 1 && Mathf.Abs(c - area.y) <= 1))
                 {
                     i--;
                     failure++;
@@ -497,6 +500,12 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         CallOnExplosion();
     }
 
+    void Clear()
+    {
+        Debug.Log("clear");
+        OnClear();
+    }
+
     /// <summary>
     /// OnUpdateの呼び出し
     /// </summary>
@@ -530,6 +539,17 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    /// <summary>
+    /// OnExplosionの呼び出し
+    /// </summary>
+    void CallOnClear()
+    {
+        if (OnClear != null)
+        {
+            OnClear.Invoke();
+        }
+    }
+
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -553,6 +573,18 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 GameManager.Instance.GameStart(cell.Position);
             }
         }
+    }
+
+    void FieldCheck()
+    {
+        foreach(var f in _field)
+        {
+            if(f.State == CellState.Nomal || f.State == CellState.WillDig)
+            {
+                return;
+            }
+        }
+        Clear();
     }
 }
 
