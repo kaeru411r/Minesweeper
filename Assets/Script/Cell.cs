@@ -76,6 +76,11 @@ public class Cell : MonoBehaviour
         BoardManager.Instance.OnUpdate += Transcription;
     }
 
+    private void OnDisable()
+    {
+        BoardManager.Instance.OnUpdate -= Transcription;
+    }
+
     public void SetScale(float size)
     {
         if (!_tr)
@@ -130,6 +135,11 @@ public class Cell : MonoBehaviour
             _text.text = "F";
             _text.color = Color.yellow;
             _image.color = Color.gray;
+        }
+        else if (_state == CellState.Null)
+        {
+            _text.text = "";
+            _image.color = Color.black;
         }
         else
         {

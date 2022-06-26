@@ -336,7 +336,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// <param name="col"></param>
     public void Dig(Vector2Int point)
     {
-        Dig(point.y, point.x);
+        Dig(point.x, point.y);
     }
     /// <summary>
     /// 指定したセルを掘る
@@ -358,13 +358,13 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
             {
                 _field[row, col].State = CellState.WillDig;
                 cells.Add(new List<Vector2Int>());
-                cells[0].Add(new Vector2Int(col, row));
+                cells[0].Add(new Vector2Int(row, col));
                 AroundDig(row, col, cells);
             }
             else
             {
                 cells.Add(new List<Vector2Int>());
-                cells[0].Add(new Vector2Int(col, row));
+                cells[0].Add(new Vector2Int(row, col));
             }
             StartCoroutine(ChainDig(cells));
         }
@@ -485,7 +485,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// <param name="point"></param>
     public void Flag(Vector2Int point)
     {
-        Flag(point.y, point.x);
+        Flag(point.x, point.y);
     }
 
     /// <summary>
@@ -504,7 +504,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (OnUpdate != null)
         {
-            OnUpdate();
+            OnUpdate.Invoke();
         }
     }
 
@@ -515,7 +515,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (OnSetUp != null)
         {
-            OnSetUp();
+            OnSetUp.Invoke();
         }
     }
 
@@ -526,7 +526,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (OnExplosion != null)
         {
-            OnExplosion();
+            OnExplosion.Invoke();
         }
     }
 
@@ -537,13 +537,20 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         Debug.Log(eventData.pointerCurrentRaycast.gameObject.transform.parent);
         if (cell)
         {
-            if (eventData.button == PointerEventData.InputButton.Right)
+            if (GameManager.Instance.IsPlay)
             {
-                Flag(cell.Position);
+                if (eventData.button == PointerEventData.InputButton.Right)
+                {
+                    Flag(cell.Position);
+                }
+                if (eventData.button == PointerEventData.InputButton.Left)
+                {
+                    Dig(cell.Position);
+                }
             }
-            else if (eventData.button == PointerEventData.InputButton.Left)
+            else
             {
-                Dig(cell.Position);
+                GameManager.Instance.GameStart(cell.Position);
             }
         }
     }
