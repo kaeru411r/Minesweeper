@@ -424,7 +424,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 {
                     Vector2Int point = new Vector2Int(i, k);
                     int dis = distance + Mathf.Abs(row - i) + Mathf.Abs(col - k);
-                    //Debug.Log($"{dis}, {cells.Count}");
                     if (_field[i, k].State == CellState.Nomal || _field[i, k].State == CellState.WillDig)
                     {
                         if (cells.ContainsKey(point))
