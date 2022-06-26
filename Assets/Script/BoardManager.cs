@@ -116,7 +116,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// <returns>指定座標がエリア内か否か</returns>
     bool EreaCheck(Vector2Int point)
     {
-        return EreaCheck(point.y, point.x);
+        return EreaCheck(point.x, point.y);
     }
 
     /// <summary>
@@ -180,60 +180,61 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         ResetField();
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
-        //Array.ForEach(_fieldSettings, f => x.Add(new int[] { f.Area.y + f.Origin.y, f.Origin.y }));
-        x.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
+        //Array.ForEach(_fieldSettings, f => x.Add(new int[] { f.Area.x + f.Origin.x, f.Origin.x }));
+        x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
         //yの両端を格納する配列のリスト
         List<int[]> y = new List<int[]>();
-        y.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
+        y.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
         //xとyそれぞれの最小値
-        Vector2Int min = new Vector2Int(y[0].Min(), x[0].Min());
+        Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
         //xとyそれぞれの最大値
-        Vector2Int max = new Vector2Int(y[0].Max(), x[0].Max());
-        //if(min.x < 0)
+        Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
+        //if(min.y < 0)
         //{
-        //    min += new Vector2Int(min.x * -1, 0);
-        //    max += new Vector2Int(min.x * -1, 0);
+        //    min += new Vector2Int(min.y * -1, 0);
+        //    max += new Vector2Int(min.y * -1, 0);
         //    //foreach()
         //}
-        //else if (min.y < 0)
+        //else if (min.x < 0)
         //{
-        //    min += new Vector2Int(0, min.y * -1);
-        //    max += new Vector2Int(0, min.y * -1);
+        //    min += new Vector2Int(0, min.x * -1);
+        //    max += new Vector2Int(0, min.x * -1);
         //}
         //xとyそれぞれの最小、最大値を決める
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
-            x.Add(new int[] { _fieldSettings[i].Area.y + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
-            y.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
-            if (x[i].Min() < min.x || x[i].Max() > max.x || y[i].Min() < min.y || y[i].Max() > max.y)
+            x.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
+            y.Add(new int[] { _fieldSettings[i].Area.y + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
+            if (y[i].Min() < min.y || y[i].Max() > max.y || x[i].Min() < min.x || x[i].Max() > max.x)
             {
                 min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
                 max = new Vector2Int(Mathf.Max(x[i].Max(), max.x), Mathf.Max(y[i].Max(), max.y));
             }
         }
         //fieldのサイズを決定し、配列を用意
-        _field = new Cell[max.y - min.y, max.x - min.x];
+        _field = new Cell[max.x - min.x, max.y - min.y];
         float spase = _cellPrefab.GetComponent<RectTransform>().rect.height;
         //配列内の各要素をインスタンス化
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                float width = _tr.position.x + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
-                float height = _tr.position.y - i * spase + (float)(_field.GetLength(0) - 1) / 2 * spase;
+                float height = _tr.position.y + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
+                float width = _tr.position.x - i * spase + (float)(_field.GetLength(0) - 1) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
                 _field[i, k].Position = new Vector2Int(i, k);
+                _field[i, k].SetUp();
             }
         }
 
         //エリアに指定されているマスをNomalに
         for (int i = 0; i < _fieldSettings.Length; i++)
         {
-            for (int k = y[i].Min() - min.x; k < y[i].Max() - min.x; k++)
+            for (int k = x[i].Min() - min.x; k < x[i].Max() - min.x; k++)
             {
-                for (int m = x[i].Min() - min.y; m < x[i].Max() - min.y; m++)
+                for (int m = y[i].Min() - min.y; m < y[i].Max() - min.y; m++)
                 {
-                    _field[m, k].State = CellState.Nomal;
+                    _field[k, m].State = CellState.Nomal;
                 }
             }
         }
@@ -247,6 +248,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
+                _field[i, k].Delete();
                 Destroy(_field[i, k].gameObject);
             }
         }
@@ -348,7 +350,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// <param name="col"></param>
     public void Dig(int row, int col)
     {
-        //Debug.Log($"{row}, {col}");
         if (_field[row, col].State == CellState.Nomal)
         {
             List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
@@ -394,20 +395,15 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         _openTime = 0 > _openTime ? 0 : _openTime;
         int i = 0;
         float time = 0;
-        Debug.Log(0);
 
         if (_openTime > 0)
         {
-            Debug.Log(1);
             for (; i < cells.Count;)
             {
-                Debug.Log(2);
                 for (; i <= time / _openTime && i < cells.Count; i++)
                 {
-                    Debug.Log(3);
                     foreach (var v in cells[i])
                     {
-                        Debug.Log(4);
                         _field[v.x, v.y].State = CellState.Dug;
                     }
                 }
@@ -418,7 +414,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            Debug.Log(5);
             foreach (var v in cells)
             {
                 foreach (var v2 in v)
@@ -448,7 +443,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                     int dis = Mathf.Abs((i - cells[0][0].x) + (k - cells[0][0].y));
                     while (dis > cells.Count - 1)
                     {
-                        Debug.Log($"{i}, {k}");
                         cells.Add(new List<Vector2Int>());
                     }
                     cells[dis].Add(new Vector2Int(i, k));
@@ -554,32 +548,38 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         Cell cell = eventData.pointerCurrentRaycast.gameObject.transform.parent.GetComponent<Cell>();
-        Debug.Log(eventData.pointerCurrentRaycast.gameObject.transform.parent);
-        if (cell)
+        if (cell && cell.State != CellState.Null)
         {
-            if (GameManager.Instance.IsPlay)
+            foreach (var f in _field)
             {
-                if (eventData.button == PointerEventData.InputButton.Right)
+                if (f == cell)
                 {
-                    Flag(cell.Position);
+                    if (GameManager.Instance.IsPlay)
+                    {
+                        if (eventData.button == PointerEventData.InputButton.Right)
+                        {
+                            Flag(cell.Position);
+                        }
+                        if (eventData.button == PointerEventData.InputButton.Left)
+                        {
+                            Dig(cell.Position);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log(2);
+                        GameManager.Instance.GameStart(cell.Position);
+                    }
                 }
-                if (eventData.button == PointerEventData.InputButton.Left)
-                {
-                    Dig(cell.Position);
-                }
-            }
-            else
-            {
-                GameManager.Instance.GameStart(cell.Position);
             }
         }
     }
 
     void FieldCheck()
     {
-        foreach(var f in _field)
+        foreach (var f in _field)
         {
-            if(f.State == CellState.Nomal || f.State == CellState.WillDig)
+            if (f.State == CellState.Nomal || f.State == CellState.WillDig)
             {
                 return;
             }

@@ -61,6 +61,16 @@ public class Cell : MonoBehaviour
         return $"{{{_state}, {_number}, {_bomb}}}";
     }
 
+    public void SetUp()
+    {
+        _state = CellState.Null;
+        _number = 0;
+        _bomb = false;
+        Start();
+        Transcription();
+        BoardManager.Instance.OnUpdate += Transcription;
+    }
+
 
 
     // Start is called before the first frame update
@@ -73,10 +83,9 @@ public class Cell : MonoBehaviour
         {
             Debug.LogError("子オブジェクトにTextが必要です");
         }
-        BoardManager.Instance.OnUpdate += Transcription;
     }
 
-    private void OnDisable()
+    public void Delete()
     {
         BoardManager.Instance.OnUpdate -= Transcription;
     }
@@ -129,6 +138,11 @@ public class Cell : MonoBehaviour
                 }
             }
         }
+        else if (_state == CellState.Nomal)
+        {
+            _text.text = "";
+            _image.color = Color.gray;
+        }
         else if (_state == CellState.Flag)
         {
             _text.text = "F";
@@ -139,11 +153,6 @@ public class Cell : MonoBehaviour
         {
             _text.text = "";
             _image.color = Color.black;
-        }
-        else
-        {
-            _text.text = "";
-            _image.color = Color.gray;
         }
     }
 }

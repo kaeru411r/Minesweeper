@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
         BoardManager.Instance.SetField();
         if (BoardManager.Instance.MineLaying(point))
         {
+            Debug.Log(5);
             _isPlay = true;
             BoardManager.Instance.Dig(point)
 ;
