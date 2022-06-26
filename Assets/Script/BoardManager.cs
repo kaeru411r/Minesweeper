@@ -373,7 +373,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 //cells[0].Add(new Vector2Int(row, col));
                 cells.Add(new Vector2Int(row, col), 0);
             }
-            ChainDig(cells);
+            StartCoroutine(ChainDig(cells));
         }
     }
 
@@ -429,7 +429,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     }
 
 
-    void ChainDig(Dictionary<Vector2Int, int> cells)
+    IEnumerator ChainDig(Dictionary<Vector2Int, int> cells)
     {
         _openTime = 0 > _openTime ? 0 : _openTime;
         int i = 0;
@@ -437,9 +437,16 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
         if (_openTime > 0)
         {
-            foreach (var d in cells)
+            //cells = cells.OrderByDescending(c => c.Value).ToDictionary();
+            foreach (var d in cells.OrderBy(c => c.Value))
             {
-                StartCoroutine(_field[d.Key.x, d.Key.y].Dig(_openTime * d.Value));
+                _field[d.Key.x, d.Key.y].State = CellState.Dug;
+                Debug.Log(d.Value);
+                while (d.Value * _openTime > time)
+                {
+                    yield return null;
+                    time += Time.deltaTime;
+                }
             }
         }
         else
@@ -518,7 +525,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 {
                     Vector2Int point = new Vector2Int(i, k);
                     int dis = distance + Mathf.Abs(row - i) + Mathf.Abs(col - k);
-                    Debug.Log($"{dis}, {cells.Count}");
+                    //Debug.Log($"{dis}, {cells.Count}");
                     if (_field[i, k].State == CellState.Nomal || _field[i, k].State == CellState.WillDig)
                     {
                         if (cells.ContainsKey(point))
