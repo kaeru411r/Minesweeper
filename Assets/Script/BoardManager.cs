@@ -440,7 +440,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 if (EreaCheck(i, k) && _field[i, k].State == CellState.Nomal)
                 {
                     _field[i, k].State = CellState.WillDig;
-                    int dis = Mathf.Abs((i - cells[0][0].x) + (k - cells[0][0].y));
+                    int dis = Mathf.Abs((i - cells[0][0].x)) + Mathf.Abs((k - cells[0][0].y));
                     while (dis > cells.Count - 1)
                     {
                         cells.Add(new List<Vector2Int>());
