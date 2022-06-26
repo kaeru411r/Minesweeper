@@ -62,10 +62,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         //OnUpdate += Log;
         OnUpdate += FieldCheck;
         SetField();
-
-        //List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
-        //AroundDig(1, 1, cells);
-        //StartCoroutine(ChainDig(cells));
     }
 
     void Log()
@@ -180,7 +176,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         ResetField();
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
-        //Array.ForEach(_fieldSettings, f => x.Add(new int[] { f.Area.x + f.Origin.x, f.Origin.x }));
         x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
         //yの両端を格納する配列のリスト
         List<int[]> y = new List<int[]>();
@@ -189,17 +184,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
         //xとyそれぞれの最大値
         Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
-        //if(min.y < 0)
-        //{
-        //    min += new Vector2Int(min.y * -1, 0);
-        //    max += new Vector2Int(min.y * -1, 0);
-        //    //foreach()
-        //}
-        //else if (min.x < 0)
-        //{
-        //    min += new Vector2Int(0, min.x * -1);
-        //    max += new Vector2Int(0, min.x * -1);
-        //}
         //xとyそれぞれの最小、最大値を決める
         for (int i = 1; i < _fieldSettings.Length; i++)
         {
@@ -386,7 +370,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
         if (_openTime > 0)
         {
-            //cells = cells.OrderByDescending(c => c.Value).ToDictionary();
             foreach (var d in cells.OrderBy(c => c.Value))
             {
                 _field[d.Key.x, d.Key.y].State = CellState.Dug;
