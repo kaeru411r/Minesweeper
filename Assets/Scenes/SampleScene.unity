@@ -648,11 +648,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91dc0b1759359174ba8df47b9c90461e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bomb: 20
+  _bomb: 0
   _fieldSettings:
   - Origin: {x: 0, y: 0}
-    Area: {x: 1, y: 1}
-  _openTime: -10
+    Area: {x: 10, y: 10}
+  _openTime: 0.2
   _cellPrefab: {fileID: 3320081222455334577, guid: 1a2f3585753e7174db910989c7d32af3, type: 3}
 --- !u!114 &1521906005
 MonoBehaviour:
