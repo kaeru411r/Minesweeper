@@ -648,7 +648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91dc0b1759359174ba8df47b9c90461e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bomb: 0
+  _bomb: 6
   _fieldSettings:
   - Origin: {x: 0, y: 0}
     Area: {x: 10, y: 10}

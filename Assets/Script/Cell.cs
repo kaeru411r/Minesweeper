@@ -155,4 +155,11 @@ public class Cell : MonoBehaviour
             _image.color = Color.black;
         }
     }
+
+    public IEnumerator Dig(float time)
+    {
+        yield return new WaitForSeconds(time);
+        _state = CellState.Dug;
+        Transcription();
+    }
 }

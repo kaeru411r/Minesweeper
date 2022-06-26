@@ -352,7 +352,8 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (_field[row, col].State == CellState.Nomal)
         {
-            List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
+            //List<List<Vector2Int>> cells = new List<List<Vector2Int>>();
+            Dictionary<Vector2Int, int> cells = new Dictionary<Vector2Int, int>();
             if (_field[row, col].Bomb)
             {
                 Explosion();
@@ -361,16 +362,18 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
             else if (_field[row, col].Number == 0)
             {
                 _field[row, col].State = CellState.WillDig;
-                cells.Add(new List<Vector2Int>());
-                cells[0].Add(new Vector2Int(row, col));
+                //cells.Add(new List<Vector2Int>());
+                //cells[0].Add(new Vector2Int(row, col));
+                cells.Add(new Vector2Int(row, col), 0);
                 AroundDig(row, col, 0, cells);
             }
             else
             {
-                cells.Add(new List<Vector2Int>());
-                cells[0].Add(new Vector2Int(row, col));
+                //cells.Add(new List<Vector2Int>());
+                //cells[0].Add(new Vector2Int(row, col));
+                cells.Add(new Vector2Int(row, col), 0);
             }
-            StartCoroutine(ChainDig(cells));
+            ChainDig(cells);
         }
     }
 
@@ -425,6 +428,30 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
+
+    void ChainDig(Dictionary<Vector2Int, int> cells)
+    {
+        _openTime = 0 > _openTime ? 0 : _openTime;
+        int i = 0;
+        float time = 0;
+
+        if (_openTime > 0)
+        {
+            foreach (var d in cells)
+            {
+                StartCoroutine(_field[d.Key.x, d.Key.y].Dig(_openTime * d.Value));
+            }
+        }
+        else
+        {
+            foreach (var d in cells)
+            {
+                _field[d.Key.x, d.Key.y].State = CellState.Dug;
+            }
+            CallOnUpdate();
+        }
+    }
+
     /// <summary>
     /// 指定セルの周囲を掘る
     /// </summary>
@@ -456,26 +483,61 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                             AroundDig(i, k, dis, cells);
                         }
                     }
-                    else if(_field[i, k].State == CellState.WillDig && cells.Count > dis)
+                    else if (_field[i, k].State == CellState.WillDig && cells.Count > dis)
                     {
                         Debug.Log($"{dis}, {cells.Count}");
-                        for (int d = 0; d < cells.Count; d++)
+                        if (DistanceChack())
                         {
-                            for (int m = 0; m < cells[d].Count; m++)
+                            cells[dis].Add(point);
+                            if (_field[i, k].Number == 0)
                             {
-                                if (cells[d][m] == point)
+                                AroundDig(i, k, dis, cells);
+                            }
+                        }
+                    }
+                    bool DistanceChack()
+                    {
+                        for (int d = 0; d < dis; d++)
+                        {
+                            if (cells[d].Contains(point)) return false;
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    void AroundDig(int row, int col, int distance, Dictionary<Vector2Int, int> cells)
+    {
+        for (int i = row - 1; i <= row + 1; i++)
+        {
+            for (int k = col - 1; k <= col + 1; k++)
+            {
+                if (EreaCheck(i, k))
+                {
+                    Vector2Int point = new Vector2Int(i, k);
+                    int dis = distance + Mathf.Abs(row - i) + Mathf.Abs(col - k);
+                    Debug.Log($"{dis}, {cells.Count}");
+                    if (_field[i, k].State == CellState.Nomal || _field[i, k].State == CellState.WillDig)
+                    {
+                        if (cells.ContainsKey(point))
+                        {
+                            if (cells[point] > dis)
+                            {
+                                cells[point] = dis;
+                                if (_field[i, k].Number == 0)
                                 {
-                                    if(d > dis)
-                                    {
-                                        cells[d].RemoveAt(m);
-                                        cells[dis].Add(point);
-                                        Debug.Log($"{dis}, {cells.Count}");
-                                        if (_field[i, k].Number == 0)
-                                        {
-                                            AroundDig(i, k, dis, cells);
-                                        }
-                                    }
+                                    AroundDig(i, k, dis, cells);
                                 }
+                            }
+                        }
+                        else
+                        {
+                            cells.Add(point, dis);
+                            if (_field[i, k].Number == 0)
+                            {
+                                AroundDig(i, k, dis, cells);
                             }
                         }
                     }
