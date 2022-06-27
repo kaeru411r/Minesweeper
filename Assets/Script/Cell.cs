@@ -156,10 +156,35 @@ public class Cell : MonoBehaviour
         }
     }
 
-    public IEnumerator Dig(float time)
+    /// <summary>
+    /// 掘る
+    /// </summary>
+    public void Dig()
     {
-        yield return new WaitForSeconds(time);
         _state = CellState.Dug;
+        Transcription();
+    }
+
+    /// <summary>
+    /// 旗を立てたり、おろしたり
+    /// </summary>
+    public void Flag()
+    {
+        if(_state == CellState.Nomal)
+        {
+            _state = CellState.Flag;
+        }
+        else if(_state == CellState.Flag)
+        {
+            _state = CellState.Nomal;
+        }
+        Transcription();
+    }
+
+
+    public void SetBomb()
+    {
+        _bomb = true;
         Transcription();
     }
 }

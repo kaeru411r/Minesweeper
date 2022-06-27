@@ -144,7 +144,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (!(_field[row, col].Bomb || _field[row, col].State == CellState.Null))
         {
-            _field[row, col].Bomb = true;
+            _field[row, col].SetBomb();
             //爆弾の周囲のマスの爆弾数＋１
             for (int i = row - 1 >= 0 ? row - 1 : 0; i < _field.GetLength(0) && i <= row + 1; i++)
             {
@@ -372,7 +372,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         {
             foreach (var d in cells.OrderBy(c => c.Value))
             {
-                _field[d.Key.x, d.Key.y].State = CellState.Dug;
+                _field[d.Key.x, d.Key.y].Dig();
                 while (d.Value * _openTime > time)
                 {
                     yield return null;
@@ -385,7 +385,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         {
             foreach (var d in cells)
             {
-                _field[d.Key.x, d.Key.y].State = CellState.Dug;
+                _field[d.Key.x, d.Key.y].Dig();
             }
             CallOnUpdate();
         }
@@ -443,14 +443,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (EreaCheck(r, c))
         {
-            if (_field[r, c].State == CellState.Flag)
-            {
-                _field[r, c].State = CellState.Nomal;
-            }
-            else if (_field[r, c].State == CellState.Nomal)
-            {
-                _field[r, c].State = CellState.Flag;
-            }
+            _field[r, c].Flag();
             CallOnUpdate();
         }
     }
