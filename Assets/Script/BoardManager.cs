@@ -59,7 +59,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _tr = GetComponent<RectTransform>();
-        //OnUpdate += Log;
+        OnUpdate += Log;
         OnUpdate += FieldCheck;
         SetField();
     }
@@ -204,7 +204,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
             for (int k = 0; k < _field.GetLength(1); k++)
             {
                 float height = _tr.position.y + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
-                float width = _tr.position.x - i * spase + (float)(_field.GetLength(0) - 1) / 2 * spase;
+                float width = _tr.position.x + i * spase - (float)(_field.GetLength(0) - 1) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
                 _field[i, k].Position = new Vector2Int(i, k);
                 _field[i, k].SetUp();
@@ -364,29 +364,17 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// <returns></returns>
     IEnumerator ChainDig(Dictionary<Vector2Int, int> cells)
     {
-        _openTime = 0 > _openTime ? 0 : _openTime;
-        int i = 0;
+        _openTime = Mathf.Max(0, _openTime);
         float time = 0;
 
-        if (_openTime > 0)
+        foreach (var d in cells.OrderBy(c => c.Value))
         {
-            foreach (var d in cells.OrderBy(c => c.Value))
+            while (d.Value * _openTime >= time)
             {
-                _field[d.Key.x, d.Key.y].Dig();
-                while (d.Value * _openTime > time)
-                {
-                    yield return null;
-                    time += Time.deltaTime;
-                }
-                CallOnUpdate();
+                yield return null;
+                time += Time.deltaTime;
             }
-        }
-        else
-        {
-            foreach (var d in cells)
-            {
-                _field[d.Key.x, d.Key.y].Dig();
-            }
+            _field[d.Key.x, d.Key.y].Dig();
             CallOnUpdate();
         }
     }
