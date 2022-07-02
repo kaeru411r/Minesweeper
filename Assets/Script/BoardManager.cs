@@ -24,6 +24,22 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
     RectTransform _tr;
 
+    RectTransform Tr
+    {
+        get
+        {
+            if (!_tr)
+            {
+                _tr = GetComponent<RectTransform>();
+                if (!_tr)
+                {
+                    Debug.LogError($"{_tr.GetType()}が{name}についていません");
+                }
+            }
+            return _tr;
+        }
+    }
+
     /// <summary>ボード全体のCellを格納</summary>
     Cell[,] _field = new Cell[0, 0];
 
@@ -58,7 +74,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     // Start is called before the first frame update
     void Start()
     {
-        _tr = GetComponent<RectTransform>();
+        Debug.Log("BoardStart");
         OnUpdate += Log;
         OnUpdate += FieldCheck;
         SetField();
@@ -173,6 +189,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public void SetField()
     {
+        Debug.Log($"SetField");
         ResetField();
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
@@ -203,8 +220,9 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                float height = _tr.position.y + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
-                float width = _tr.position.x + i * spase - (float)(_field.GetLength(0) - 1) / 2 * spase;
+                Debug.Log($"Instantiate");
+                float height = Tr.position.y + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
+                float width = Tr.position.x + i * spase - (float)(_field.GetLength(0) - 1) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
                 _field[i, k].Position = new Vector2Int(i, k);
                 _field[i, k].SetUp();

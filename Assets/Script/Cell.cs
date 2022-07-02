@@ -63,6 +63,7 @@ public class Cell : MonoBehaviour
 
     public void SetUp()
     {
+        Debug.Log("CellSetUp");
         _state = CellState.Null;
         _number = 0;
         _bomb = false;
@@ -76,6 +77,7 @@ public class Cell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("CellStart");
         _image = GetComponent<Image>();
         _text = GetComponentInChildren<Text>();
         _tr = GetComponentInChildren<RectTransform>();
