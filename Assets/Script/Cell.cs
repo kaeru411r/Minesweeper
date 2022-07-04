@@ -63,7 +63,6 @@ public class Cell : MonoBehaviour
 
     public void SetUp()
     {
-        Debug.Log("CellSetUp");
         _state = CellState.Null;
         _number = 0;
         _bomb = false;
@@ -77,7 +76,6 @@ public class Cell : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("CellStart");
         _image = GetComponent<Image>();
         _text = GetComponentInChildren<Text>();
         _tr = GetComponentInChildren<RectTransform>();
@@ -170,17 +168,49 @@ public class Cell : MonoBehaviour
     /// <summary>
     /// 旗を立てたり、おろしたり
     /// </summary>
-    public void Flag()
+    public bool Flag()
     {
+        bool b = false;
         if(_state == CellState.Nomal)
         {
             _state = CellState.Flag;
+            b = true;
         }
         else if(_state == CellState.Flag)
         {
             _state = CellState.Nomal;
+            b = false;
         }
         Transcription();
+        return b;
+    }
+
+    /// <summary>
+    /// 旗を立てる
+    /// </summary>
+    /// <returns></returns>
+    public bool RiseFlag()
+    {
+        if(_state == CellState.Flag || _state == CellState.Nomal)
+        {
+            _state = CellState.Flag;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 旗をはずす
+    /// </summary>
+    /// <returns></returns>
+    public bool RemovalFlag()
+    {
+        if (_state == CellState.Flag || _state == CellState.Nomal)
+        {
+            _state = CellState.Nomal;
+            return true;
+        }
+        return false;
     }
 
 

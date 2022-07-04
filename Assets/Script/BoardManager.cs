@@ -22,6 +22,9 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     [Tooltip("セルのプレハブ")]
     [SerializeField] Cell _cellPrefab;
 
+    /// <summary>今立っている旗の数</summary>
+    int _flagNum = 0;
+
     RectTransform _tr;
 
     RectTransform Tr
@@ -74,7 +77,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("BoardStart");
         OnUpdate += Log;
         OnUpdate += FieldCheck;
         SetField();
@@ -189,7 +191,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public void SetField()
     {
-        Debug.Log($"SetField");
         ResetField();
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
@@ -220,7 +221,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         {
             for (int k = 0; k < _field.GetLength(1); k++)
             {
-                Debug.Log($"Instantiate");
                 float height = Tr.position.y + k * spase - (float)(_field.GetLength(1) - 1) / 2 * spase;
                 float width = Tr.position.x + i * spase - (float)(_field.GetLength(0) - 1) / 2 * spase;
                 _field[i, k] = Instantiate(_cellPrefab, new Vector2(width, height), Quaternion.identity, transform);
@@ -449,8 +449,20 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (EreaCheck(r, c))
         {
-            _field[r, c].Flag();
+            if (_field[r, c].State == CellState.Nomal)
+            {
+                if (_flagNum < _bomb)
+                {
+                    _flagNum += _field[r, c].RiseFlag() ? 1 : 0;
+                    Debug.Log(1);
+                }
+            }
+            else if(_field[r, c].State == CellState.Flag)
+            {
+                _flagNum -= _field[r, c].RemovalFlag() ? 1 : 0;
+            }
             CallOnUpdate();
+
         }
     }
 
