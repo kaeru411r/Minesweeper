@@ -246,6 +246,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
     private void ResetField()
     {
+        _flagNum = 0;
         for (int i = 0; i < _field.GetLength(0); i++)
         {
             for (int k = 0; k < _field.GetLength(1); k++)
@@ -487,7 +488,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     void Clear()
     {
         Debug.Log("clear");
-        OnClear();
+        CallOnClear();
     }
 
     /// <summary>
