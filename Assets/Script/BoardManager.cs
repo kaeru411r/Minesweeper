@@ -82,44 +82,13 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         SetField();
     }
 
+
+    /// <summary>
+    /// ログを出力する
+    /// </summary>
     void Log()
     {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < _field.GetLength(0); i++)
-        {
-            for (int k = 0; k < _field.GetLength(1); k++)
-            {
-                if (_field[i, k].Bomb)
-                {
-                    sb.Append("B");
-                }
-                else if (_field[i, k].State == CellState.Nomal)
-                {
-                    sb.Append("■");
-                }
-                else if (_field[i, k].State == CellState.Dug)
-                {
-                    if (_field[i, k].Number != 0)
-                    {
-                        sb.Append($"{_field[i, k].Number} ");
-                    }
-                    else
-                    {
-                        sb.Append("Ｘ");
-                    }
-                }
-                else if (_field[i, k].State == CellState.Flag)
-                {
-                    sb.Append("Ｆ");
-                }
-                else if (_field[i, k].State == CellState.Null)
-                {
-                    sb.Append("□");
-                }
-            }
-            sb.AppendLine();
-        }
-        Debug.Log(sb);
+        Debug.Log(this);
     }
 
 
@@ -576,6 +545,48 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         }
         Clear();
     }
+
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = _field.GetLength(0) - 1; i >= 0; i--)
+        {
+            for (int k = 0; k < _field.GetLength(1); k++)
+            {
+                if (_field[k, i].Bomb)
+                {
+                    sb.Append("B");
+                }
+                else if (_field[k, i].State == CellState.Nomal)
+                {
+                    sb.Append("■");
+                }
+                else if (_field[k, i].State == CellState.Dug)
+                {
+                    if (_field[k, i].Number != 0)
+                    {
+                        sb.Append($"{_field[k, i].Number} ");
+                    }
+                    else
+                    {
+                        sb.Append("Ｘ");
+                    }
+                }
+                else if (_field[k, i].State == CellState.Flag)
+                {
+                    sb.Append("Ｆ");
+                }
+                else if (_field[k, i].State == CellState.Null)
+                {
+                    sb.Append("□");
+                }
+            }
+            sb.AppendLine();
+        }
+        return sb.ToString();
+    }
+
 }
 
 [Serializable]
