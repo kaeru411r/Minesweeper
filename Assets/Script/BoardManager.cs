@@ -272,6 +272,10 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                         Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
                         _bomb--;
                     }
+                    else
+                    {
+                        i++;
+                    }
                 }
             }
             CallOnUpdate();
@@ -338,9 +342,12 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                             Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
                             _bomb--;
                         }
+                        else
+                        {
+                            i++;
+                        }
                     }
                 }
-                CallOnSetUp();
                 CallOnUpdate();
                 return true;
             }
