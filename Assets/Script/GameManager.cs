@@ -6,8 +6,13 @@ public class GameManager : MonoBehaviour
 {
     static public GameManager Instance;
 
+
+
     /// <summary>ゲームの進行状態</summary>
     bool _isPlay = false;
+    /// <summary>ゲームの進行時間</summary>
+    float _playTime = 0;
+
 
     /// <summary>ゲームの進行状態</summary>
     public bool IsPlay { get => _isPlay; }
@@ -25,6 +30,14 @@ public class GameManager : MonoBehaviour
         BoardManager.Instance.MineLaying();
     }
 
+    private void Update()
+    {
+        if (_isPlay)
+        {
+            _playTime += Time.deltaTime;
+        }
+    }
+
     /// <summary>
     /// ゲームの開始
     /// </summary>
@@ -32,6 +45,7 @@ public class GameManager : MonoBehaviour
     /// <param name="col"></param>
     public void GameStart(Vector2Int point)
     {
+        _playTime = 0;
         BoardManager.Instance.SetField();
         if (BoardManager.Instance.MineLaying(point))
         {
@@ -50,5 +64,6 @@ public class GameManager : MonoBehaviour
     {
         _isPlay = false;
         BoardManager.Instance.SetField();
+        Debug.Log($"ClearTime{_playTime}");
     }
 }

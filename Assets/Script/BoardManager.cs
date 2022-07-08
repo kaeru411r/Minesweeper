@@ -24,6 +24,8 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
     /// <summary>今立っている旗の数</summary>
     int _flagNum = 0;
+    /// <summary>有効なセルの数</summary>
+    int _activeCellNumber;
 
     RectTransform _tr;
 
@@ -206,6 +208,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 for (int m = y[i].Min() - min.y; m < y[i].Max() - min.y; m++)
                 {
                     _field[k, m].State = CellState.Nomal;
+                    _activeCellNumber++;
                 }
             }
         }
@@ -215,6 +218,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
     private void ResetField()
     {
+        _activeCellNumber = 0;
         _flagNum = 0;
         for (int i = 0; i < _field.GetLength(0); i++)
         {
@@ -233,9 +237,9 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     {
         if (_field != null)
         {
-            _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
+            _bomb = Mathf.Min(_bomb, _activeCellNumber);
             int failure = 0;
-            int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
+            int failureLimit = _activeCellNumber * 2;
             for (int i = 0; i < _bomb; i++)
             {
                 int r = UnityEngine.Random.Range(0, _field.GetLength(0));
@@ -250,12 +254,32 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 if (failure > failureLimit)
                 {
                     failure = 0;
-                    Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
-                    _bomb--;
+                    bool b = false;
+                    for (int k = 0; k < _field.GetLength(0); k++)
+                    {
+                        for (int m = 0; m < _field.GetLength(1); m++)
+                        {
+                            if (BombSet(k, m))
+                            {
+                                b = true;
+                                break;
+                            }
+                        }
+                        if (b) break;
+                    }
+                    if (!b)
+                    {
+                        Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
+                        _bomb--;
+                    }
                 }
             }
+            CallOnUpdate();
         }
-        CallOnUpdate();
+        else
+        {
+            Debug.LogError("フィールドのセットアップがされていません");
+        }
     }
 
     /// <summary>
@@ -266,41 +290,64 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// <returns></returns>
     public bool MineLaying(Vector2Int area)
     {
-        if (EreaCheck(area) && _field != null)
+        if (_field != null)
         {
-            _bomb = Mathf.Min(_bomb, _field.GetLength(0) * _field.GetLength(1));
-            int failure = 0;
-            int failureLimit = _field.GetLength(0) * _field.GetLength(1) * 2;
-
-            for (int i = 0; i < _bomb; i++)
+            if (EreaCheck(area))
             {
-                int r = UnityEngine.Random.Range(0, _field.GetLength(0));
-                int c = UnityEngine.Random.Range(0, _field.GetLength(1));
-                //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
-                if ((Mathf.Abs(r - area.x) <= 1 && Mathf.Abs(c - area.y) <= 1))
+                _bomb = Mathf.Min(_bomb, _field.Length);
+                int failure = 0;
+                int failureLimit = _field.Length * 2;
+
+                for (int i = 0; i < _bomb; i++)
                 {
-                    i--;
-                    failure++;
-                }
-                else
-                {
-                    if (!BombSet(r, c))
+                    int r = UnityEngine.Random.Range(0, _field.GetLength(0));
+                    int c = UnityEngine.Random.Range(0, _field.GetLength(1));
+                    //爆弾の配置予定箇所が指定セルの周囲１マスだったら再抽選
+                    if ((Mathf.Abs(r - area.x) <= 1 && Mathf.Abs(c - area.y) <= 1))
                     {
                         i--;
                         failure++;
                     }
-                }
+                    else
+                    {
+                        if (!BombSet(r, c))
+                        {
+                            i--;
+                            failure++;
+                        }
+                    }
 
-                if (failure > failureLimit)
-                {
-                    failure = 0;
-                    Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
-                    _bomb--;
+                    if (failure > failureLimit)
+                    {
+                        failure = 0;
+                        bool b = false;
+                        for (int k = 0; k < _field.GetLength(0); k++)
+                        {
+                            for (int m = 0; m < _field.GetLength(1); m++)
+                            {
+                                if (BombSet(k, m))
+                                {
+                                    b = true;
+                                    break;
+                                }
+                            }
+                            if (b) break;
+                        }
+                        if (!b)
+                        {
+                            Debug.LogWarning("爆弾の配置可能箇所が見つかりませんでした");
+                            _bomb--;
+                        }
+                    }
                 }
+                CallOnSetUp();
+                CallOnUpdate();
+                return true;
             }
-            CallOnSetUp();
-            CallOnUpdate();
-            return true;
+        }
+        else
+        {
+            Debug.LogError("フィールドのセットアップがされていません");
         }
         return false;
     }
@@ -427,7 +474,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                     Debug.Log(1);
                 }
             }
-            else if(_field[r, c].State == CellState.Flag)
+            else if (_field[r, c].State == CellState.Flag)
             {
                 _flagNum -= _field[r, c].RemovalFlag() ? 1 : 0;
             }
@@ -584,6 +631,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
             }
             sb.AppendLine();
         }
+        sb.AppendLine(_field.Length.ToString());
         return sb.ToString();
     }
 
