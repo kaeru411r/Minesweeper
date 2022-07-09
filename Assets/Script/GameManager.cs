@@ -57,12 +57,14 @@ public class GameManager : MonoBehaviour
     {
         _isPlay = false;
         BoardManager.Instance.ResetField();
+        BoardManager.Instance.SetField();
     }
 
     public void Clear()
     {
         _isPlay = false;
         BoardManager.Instance.ResetField();
+        BoardManager.Instance.SetField();
         Debug.Log($"ClearTime{_playTime}");
     }
 }
