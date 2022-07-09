@@ -79,9 +79,18 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     // Start is called before the first frame update
     void Start()
     {
+    }
+
+    private void OnEnable()
+    {
         OnUpdate += Log;
         OnUpdate += FieldCheck;
-        SetField();
+    }
+
+    private void OnDisable()
+    {
+        OnUpdate -= Log;
+        OnUpdate -= FieldCheck;
     }
 
 
@@ -162,7 +171,45 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public void SetField()
     {
-        ResetField();
+        //xの両端を格納する配列のリスト
+        List<int[]> x = new List<int[]>();
+        x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
+        //yの両端を格納する配列のリスト
+        List<int[]> y = new List<int[]>();
+        y.Add(new int[] { _fieldSettings[0].Area.y + _fieldSettings[0].Origin.y, _fieldSettings[0].Origin.y });
+        //xとyそれぞれの最小値
+        Vector2Int min = new Vector2Int(x[0].Min(), y[0].Min());
+        //xとyそれぞれの最大値
+        Vector2Int max = new Vector2Int(x[0].Max(), y[0].Max());
+        //xとyそれぞれの最小、最大値を決める
+        for (int i = 1; i < _fieldSettings.Length; i++)
+        {
+            x.Add(new int[] { _fieldSettings[i].Area.x + _fieldSettings[i].Origin.x, _fieldSettings[i].Origin.x });
+            y.Add(new int[] { _fieldSettings[i].Area.y + _fieldSettings[i].Origin.y, _fieldSettings[i].Origin.y });
+            if (y[i].Min() < min.y || y[i].Max() > max.y || x[i].Min() < min.x || x[i].Max() > max.x)
+            {
+                min = new Vector2Int(Mathf.Min(x[i].Min(), min.x), Mathf.Min(y[i].Min(), min.y));
+                max = new Vector2Int(Mathf.Max(x[i].Max(), max.x), Mathf.Max(y[i].Max(), max.y));
+            }
+        }
+        //エリアに指定されているマスをNomalに
+        for (int i = 0; i < _fieldSettings.Length; i++)
+        {
+            for (int k = x[i].Min() - min.x; k < x[i].Max() - min.x; k++)
+            {
+                for (int m = y[i].Min() - min.y; m < y[i].Max() - min.y; m++)
+                {
+                    _field[k, m].State = CellState.Nomal;
+                    _activeCellNumber++;
+                }
+            }
+        }
+        CallOnSetUp();
+        CallOnUpdate();
+    }
+
+    public void CreateField()
+    {
         //xの両端を格納する配列のリスト
         List<int[]> x = new List<int[]>();
         x.Add(new int[] { _fieldSettings[0].Area.x + _fieldSettings[0].Origin.x, _fieldSettings[0].Origin.x });
@@ -199,24 +246,23 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 _field[i, k].SetUp();
             }
         }
-
-        //エリアに指定されているマスをNomalに
-        for (int i = 0; i < _fieldSettings.Length; i++)
-        {
-            for (int k = x[i].Min() - min.x; k < x[i].Max() - min.x; k++)
-            {
-                for (int m = y[i].Min() - min.y; m < y[i].Max() - min.y; m++)
-                {
-                    _field[k, m].State = CellState.Nomal;
-                    _activeCellNumber++;
-                }
-            }
-        }
-        CallOnSetUp();
         CallOnUpdate();
     }
 
-    private void ResetField()
+    public void ResetField()
+    {
+        _activeCellNumber = 0;
+        _flagNum = 0;
+        for (int i = 0; i < _field.GetLength(0); i++)
+        {
+            for (int k = 0; k < _field.GetLength(1); k++)
+            {
+                _field[i, k].SetUp();
+            }
+        }
+    }
+
+    public void DeleteField()
     {
         _activeCellNumber = 0;
         _flagNum = 0;
@@ -329,10 +375,13 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                         {
                             for (int m = 0; m < _field.GetLength(1); m++)
                             {
-                                if (BombSet(k, m))
+                                if ((Mathf.Abs(k - area.x) > 1 && Mathf.Abs(m - area.y) > 1))
                                 {
-                                    b = true;
-                                    break;
+                                    if (BombSet(k, m))
+                                    {
+                                        b = true;
+                                        break;
+                                    }
                                 }
                             }
                             if (b) break;
@@ -590,14 +639,17 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
 
     void FieldCheck()
     {
-        foreach (var f in _field)
+        if (GameManager.Instance.IsPlay)
         {
-            if (f.State == CellState.Nomal || f.State == CellState.WillDig)
+            foreach (var f in _field)
             {
-                return;
+                if (f.State == CellState.Nomal || f.State == CellState.WillDig)
+                {
+                    return;
+                }
             }
+            Clear();
         }
-        Clear();
     }
 
 

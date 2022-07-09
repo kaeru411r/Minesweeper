@@ -26,8 +26,8 @@ public class GameManager : MonoBehaviour
     {
         BoardManager.Instance.OnExplosion += Explosion;
         BoardManager.Instance.OnClear += Clear;
+        BoardManager.Instance.CreateField();
         BoardManager.Instance.SetField();
-        BoardManager.Instance.MineLaying();
     }
 
     private void Update()
@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
     public void GameStart(Vector2Int point)
     {
         _playTime = 0;
-        BoardManager.Instance.SetField();
         if (BoardManager.Instance.MineLaying(point))
         {
             _isPlay = true;
@@ -57,13 +56,13 @@ public class GameManager : MonoBehaviour
     public void Explosion()
     {
         _isPlay = false;
-        BoardManager.Instance.SetField();
+        BoardManager.Instance.ResetField();
     }
 
     public void Clear()
     {
         _isPlay = false;
-        BoardManager.Instance.SetField();
+        BoardManager.Instance.ResetField();
         Debug.Log($"ClearTime{_playTime}");
     }
 }
