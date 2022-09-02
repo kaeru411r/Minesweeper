@@ -220,7 +220,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2892220570253756144, guid: 29598dc1b4f741b448c4d9d04cc3344c, type: 3}
       propertyPath: _bomb
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2892220570253756144, guid: 29598dc1b4f741b448c4d9d04cc3344c, type: 3}
       propertyPath: _openTime

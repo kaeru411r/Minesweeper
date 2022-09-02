@@ -448,27 +448,6 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
     }
 
 
-    /// <summary>
-    /// フィールドを連鎖的に解放していく
-    /// </summary>
-    /// <param name="cells">keyが座標valueが道のり</param>
-    /// <returns></returns>
-    IEnumerator ChainDig(Dictionary<Vector2Int, int> cells)
-    {
-        _openTime = Mathf.Max(0, _openTime);
-        float time = 0;
-
-        foreach (var d in cells.OrderBy(c => c.Value))
-        {
-            while (d.Value * _openTime >= time)
-            {
-                yield return null;
-                time += Time.deltaTime;
-            }
-            _field[d.Key.x, d.Key.y].Dig();
-            CallOnUpdate();
-        }
-    }
 
 
     /// <summary>
@@ -510,6 +489,29 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                     }
                 }
             }
+        }
+    }
+
+
+    /// <summary>
+    /// フィールドを連鎖的に解放していく
+    /// </summary>
+    /// <param name="cells">keyが座標valueが道のり</param>
+    /// <returns></returns>
+    IEnumerator ChainDig(Dictionary<Vector2Int, int> cells)
+    {
+        _openTime = Mathf.Max(0, _openTime);
+        float time = 0;
+
+        foreach (var d in cells.OrderBy(c => c.Value))
+        {
+            while (d.Value * _openTime >= time)
+            {
+                yield return null;
+                time += Time.deltaTime;
+            }
+            _field[d.Key.x, d.Key.y].Dig();
+            CallOnUpdate();
         }
     }
 

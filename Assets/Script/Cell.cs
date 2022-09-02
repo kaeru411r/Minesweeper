@@ -10,6 +10,9 @@ public class Cell : MonoBehaviour
     [SerializeField] bool _bomb;
     [SerializeField] float _scale;
     [SerializeField] Text _text;
+    [SerializeField] Color _fieldColor = Color.gray;
+    [SerializeField] Color _dugColor = Color.white;
+    [SerializeField] Color _nullColor = Color.black;
     Vector2Int _position;
     Image _image;
     RectTransform _tr;
@@ -119,7 +122,7 @@ public class Cell : MonoBehaviour
         if (_text == null) return;
         if (_state == CellState.Dug)
         {
-            _image.color = Color.white;
+            _image.color = _dugColor;
             if (_bomb)
             {
                 _text.text = "X";
@@ -141,18 +144,18 @@ public class Cell : MonoBehaviour
         else if (_state == CellState.Nomal)
         {
             _text.text = "";
-            _image.color = Color.gray;
+            _image.color = _fieldColor;
         }
         else if (_state == CellState.Flag)
         {
             _text.text = "F";
             _text.color = Color.yellow;
-            _image.color = Color.gray;
+            _image.color =_fieldColor;
         }
         else if (_state == CellState.Null)
         {
             _text.text = "";
-            _image.color = Color.black;
+            _image.color = _nullColor;
         }
     }
 
