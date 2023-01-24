@@ -6,6 +6,8 @@ public class GameManager : MonoBehaviour
 {
     static public GameManager Instance;
 
+    [SerializeField] ResultDisplay _resultDisplay;
+
 
 
     /// <summary>ゲームの進行状態</summary>
@@ -55,16 +57,39 @@ public class GameManager : MonoBehaviour
 
     public void Explosion()
     {
-        _isPlay = false;
-        BoardManager.Instance.ResetField();
-        BoardManager.Instance.SetField();
+        if (_resultDisplay)
+        {
+            _resultDisplay.FailedDisplay();
+        }
+        GameEnd();
     }
 
     public void Clear()
     {
-        _isPlay = false;
+        if (_resultDisplay)
+        {
+            _resultDisplay.ClearDisplay();
+        }
+        GameEnd();
+
+        Debug.Log($"ClearTime{_playTime}");
+    }
+
+    void GameEnd()
+    {
+        if (_resultDisplay)
+        {
+            _resultDisplay.OnDisplayEnd(() =>
+            {
+                _isPlay = false;
+                FieldReset();
+            }, true);
+        }
+    }
+
+    void FieldReset()
+    {
         BoardManager.Instance.ResetField();
         BoardManager.Instance.SetField();
-        Debug.Log($"ClearTime{_playTime}");
     }
 }

@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// ゲームボードの管理をするクラス
 /// </summary>
-public class BoardManager : MonoBehaviour, IPointerClickHandler
+public class BoardManager : MonoBehaviour
 {
     static public BoardManager Instance;
 
@@ -76,9 +76,41 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         Instance = this;
     }
 
-    // Start is called before the first frame update
-    void Start()
+
+    private void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if(TryGetClickCell(out Cell cell))
+            {
+                OnPointerClick(cell, 0);
+            }
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            if (TryGetClickCell(out Cell cell))
+            {
+                OnPointerClick(cell, 1);
+            }
+        }
+    }
+
+    bool TryGetClickCell(out Cell cell)
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.TryGetComponent<Cell>(out cell))
+            {
+                return true;
+            }
+        }
+        cell = null;
+        return false;
     }
 
     private void OnEnable()
@@ -609,10 +641,10 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick(Cell cell, int buttonNumber)
     {
-        Cell cell = eventData.pointerCurrentRaycast.gameObject.transform.parent.GetComponent<Cell>();
         if (cell && cell.State != CellState.Null)
         {
             foreach (var f in _field)
@@ -621,11 +653,11 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
                 {
                     if (GameManager.Instance.IsPlay)
                     {
-                        if (eventData.button == PointerEventData.InputButton.Right)
+                        if (buttonNumber == 1)
                         {
                             Flag(cell.Position);
                         }
-                        if (eventData.button == PointerEventData.InputButton.Left)
+                        if (buttonNumber == 0)
                         {
                             Dig(cell.Position);
                         }
@@ -645,7 +677,7 @@ public class BoardManager : MonoBehaviour, IPointerClickHandler
         {
             foreach (var f in _field)
             {
-                if (f.State == CellState.Nomal || f.State == CellState.WillDig)
+                if (!f.Bomb && (f.State == CellState.Nomal || f.State == CellState.WillDig))
                 {
                     return;
                 }
